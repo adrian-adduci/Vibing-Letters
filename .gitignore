@@ -1,0 +1,5 @@
+CLAUDE.md
+*.tmp
+.env
+PLAN.md
+*.png
