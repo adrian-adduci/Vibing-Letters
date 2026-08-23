@@ -39,7 +39,7 @@ scale-free and directly interpretable.
 **2. A character splits into two active runs, and the segmenter must close the gap.**
 The `cos(2πft)` term passes through zero *mid-character*, so each character produces
 two runs of active frames separated by one quiet frame. Naive run-splitting decodes
-every character twice. Fix: close any quiet run shorter than `MIN_GAP_FRAMES = 3`
+every character twice. Fix: close any quiet run shorter than `MIN_CLOSABLE_GAP = 3`
 before segmenting. Measured margin — interior quiet runs are 1 frame, boundary runs
 are 10 or more. Comfortable.
 
@@ -48,7 +48,7 @@ A space is a still circle, so it produces *no* active run at all — there is no
 count. Spaces are instead read from the length of the quiet run:
 
 ```
-spaces = round((run_length - BASE_GAP_FRAMES) / FRAMES_PER_CHAR)
+spaces = round((run_length - BOUNDARY_GAP_FRAMES) / FRAMES_PER_CHAR)
 ```
 
 Measured: a plain character boundary is 10 frames; each space adds 15. Runs of 10, 25,
@@ -75,18 +75,26 @@ All live in `src/codec/constants.py`. Every value below was verified by prototyp
 | `AMPLITUDE` | 0.12 | Peak radial modulation as a fraction of rest radius |
 | `REST_RADIUS` | 1.0 | Codec works in normalized radius units |
 | `ACTIVE_FRAMES` | 12 | Frames carrying the pluck |
-| `GAP_FRAMES` | 3 | Trailing silent frames per character |
-| `FRAMES_PER_CHAR` | 15 | `ACTIVE_FRAMES + GAP_FRAMES` |
+| `TRAILING_SILENCE_FRAMES` | 3 | Trailing silent frames per character |
+| `FRAMES_PER_CHAR` | 15 | `ACTIVE_FRAMES + TRAILING_SILENCE_FRAMES` |
 | `OSCILLATIONS` | 2 | Cycles of the standing wave per clip |
 | `ATTACK` | 0.25 | Fraction of the clip spent rising |
 | `DECAY_POWER` | 2.0 | Decay curve exponent |
 | `QUIET_THRESHOLD` | 0.01 | Active if strongest mode exceeds 1% radial modulation |
-| `MIN_GAP_FRAMES` | 3 | Quiet runs shorter than this are closed |
-| `BASE_GAP_FRAMES` | 10 | Quiet-run length at a plain character boundary |
+| `MIN_CLOSABLE_GAP` | 3 | Quiet runs shorter than this are closed |
+| `BOUNDARY_GAP_FRAMES` | 10 | Quiet-run length at a plain character boundary |
 
 ---
 
 ### Task 1: Package scaffold and constants
+
+> **Status: complete.** Implemented in `6beb77d`, revised after review in `563aa5c`.
+> The authoritative content is `src/codec/constants.py` and
+> `tests/codec/test_constants.py` — read those, not the blocks below, which are
+> kept only to show what was originally specified. Review added three renames
+> (`TRAILING_SILENCE_FRAMES`, `MIN_CLOSABLE_GAP`, `BOUNDARY_GAP_FRAMES`), split
+> the constants into wire-format / render-parameter / decoder-tuning groups, and
+> added five relational invariant tests. 88 tests pass.
 
 **Files:**
 - Create: `src/codec/__init__.py`
@@ -108,7 +116,7 @@ def test_mode_range_excludes_translation_mode():
 
 
 def test_frames_per_char_is_active_plus_gap():
-    assert C.FRAMES_PER_CHAR == C.ACTIVE_FRAMES + C.GAP_FRAMES
+    assert C.FRAMES_PER_CHAR == C.ACTIVE_FRAMES + C.TRAILING_SILENCE_FRAMES
 
 
 def test_sentinel_uses_extreme_modes():
@@ -160,8 +168,8 @@ REST_RADIUS = 1.0
 
 # Timing
 ACTIVE_FRAMES = 12
-GAP_FRAMES = 3
-FRAMES_PER_CHAR = ACTIVE_FRAMES + GAP_FRAMES
+TRAILING_SILENCE_FRAMES = 3
+FRAMES_PER_CHAR = ACTIVE_FRAMES + TRAILING_SILENCE_FRAMES
 OSCILLATIONS = 2
 ATTACK = 0.25
 DECAY_POWER = 2.0
@@ -169,8 +177,8 @@ DECAY_POWER = 2.0
 # Segmentation. QUIET_THRESHOLD is in radial-modulation units: a frame counts as
 # active when its strongest mode exceeds 1% modulation of the rest radius.
 QUIET_THRESHOLD = 0.01
-MIN_GAP_FRAMES = 3
-BASE_GAP_FRAMES = 10
+MIN_CLOSABLE_GAP = 3
+BOUNDARY_GAP_FRAMES = 10
 ```
 
 **Step 4: Run test to verify it passes**
@@ -526,7 +534,7 @@ def test_envelope_attacks_faster_than_it_decays():
 def test_frame_amplitudes_include_trailing_silence():
     amps = frame_amplitudes()
     assert len(amps) == C.FRAMES_PER_CHAR
-    assert np.allclose(amps[-C.GAP_FRAMES:], 0.0)
+    assert np.allclose(amps[-C.TRAILING_SILENCE_FRAMES:], 0.0)
 
 
 def test_frame_amplitudes_change_sign():
@@ -561,7 +569,7 @@ def envelope(n_frames: int = C.ACTIVE_FRAMES) -> np.ndarray:
 
 def frame_amplitudes(
     n_active: int = C.ACTIVE_FRAMES,
-    n_gap: int = C.GAP_FRAMES,
+    n_gap: int = C.TRAILING_SILENCE_FRAMES,
 ) -> np.ndarray:
     """Signed amplitude for each frame of one character clip.
 
@@ -934,6 +942,22 @@ def test_gap_closing_does_not_merge_across_characters():
 def test_runs_cover_the_whole_sequence():
     mask = active_mask(chord_clip((3, 7)))
     assert sum(stop - start for _, start, stop in runs_of(mask)) == len(mask)
+
+
+def test_boundary_gap_matches_the_constant():
+    """BOUNDARY_GAP_FRAMES is a measured consequence of seven other constants,
+    not an independent value. The round-trip test cannot catch it drifting:
+    encoder and decoder read the same constants and desynchronize in lockstep,
+    staying green while real messages decode wrong. So measure it directly.
+    """
+    clip = np.concatenate([chord_clip((3, 7)), chord_clip((4, 9))])
+    mask = close_short_gaps(active_mask(clip))
+    interior_gaps = [
+        stop - start
+        for is_active, start, stop in runs_of(mask)
+        if not is_active and start > 0 and stop < len(mask)
+    ]
+    assert interior_gaps == [C.BOUNDARY_GAP_FRAMES]
 ```
 
 **Step 2: Run test to verify it fails**
@@ -965,7 +989,7 @@ def runs_of(mask: np.ndarray) -> list[tuple[bool, int, int]]:
     return runs
 
 
-def close_short_gaps(mask: np.ndarray, min_gap: int = C.MIN_GAP_FRAMES) -> np.ndarray:
+def close_short_gaps(mask: np.ndarray, min_gap: int = C.MIN_CLOSABLE_GAP) -> np.ndarray:
     """Fill quiet runs too short to be character boundaries.
 
     The standing wave passes through zero mid-character, leaving a one-frame
@@ -1054,7 +1078,7 @@ def _spaces_in_gap(length: int) -> int:
     active segment to count. It is recovered instead from how much longer the
     silence ran than a plain character boundary.
     """
-    return max(0, round((length - C.BASE_GAP_FRAMES) / C.FRAMES_PER_CHAR))
+    return max(0, round((length - C.BOUNDARY_GAP_FRAMES) / C.FRAMES_PER_CHAR))
 
 
 def decode(frames: np.ndarray) -> str:
