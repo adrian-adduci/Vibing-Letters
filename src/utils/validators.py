@@ -9,7 +9,7 @@ import os
 import re
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
-import imghdr
+from PIL import Image, UnidentifiedImageError
 
 
 class ValidationError(Exception):
@@ -123,9 +123,16 @@ def validate_image_file(
             f"Image file too large: {file_size_mb:.2f}MB (max: {max_size_mb}MB)"
         )
 
-    # Validate actual image format using magic bytes (not just extension)
-    detected_format = imghdr.what(path)
-    if detected_format is None:
+    # Validate actual image format using magic bytes (not just extension).
+    # Pillow reads the format from the file header, replacing stdlib imghdr
+    # which was removed in Python 3.13 (PEP 594).
+    try:
+        with Image.open(path) as img:
+            detected_format = (img.format or '').lower()
+    except (UnidentifiedImageError, OSError):
+        raise ValidationError(f"File is not a valid image: {path}")
+
+    if not detected_format:
         raise ValidationError(f"File is not a valid image: {path}")
 
     if detected_format not in allowed_formats:
@@ -174,8 +181,10 @@ def sanitize_filename(
         max_name_length = max_length - len(ext)
         filename = name[:max_name_length] + ext
 
-    # Ensure filename is not empty
-    if not filename:
+    # Ensure filename is not empty. A name left with nothing but substituted
+    # characters retains no content from the original, and distinct inputs
+    # would otherwise collapse onto the same filename.
+    if not filename.strip('_'):
         raise ValidationError("Filename is empty after sanitization")
 
     # Prevent reserved names on Windows
