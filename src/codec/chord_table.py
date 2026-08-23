@@ -32,3 +32,26 @@ def _build_table() -> tuple[dict[str, tuple[int, int]], list[tuple[int, int]]]:
 CHORD_BY_SYMBOL, SPARE_CHORDS = _build_table()
 SYMBOL_BY_CHORD = {chord: symbol for symbol, chord in CHORD_BY_SYMBOL.items()}
 ALPHABET = frozenset(CHORD_BY_SYMBOL) | {SPACE}
+
+
+def normalize(text: str, strict: bool = False) -> tuple[str, list[str]]:
+    """Uppercase text and remove characters the alphabet cannot represent.
+
+    Args:
+        text: Raw input text.
+        strict: Raise instead of dropping unsupported characters.
+
+    Returns:
+        tuple: (normalized text, list of dropped characters in order)
+
+    Raises:
+        ValueError: If strict is True and any character is unsupported.
+    """
+    upper = text.upper()
+    kept = [char for char in upper if char in ALPHABET]
+    dropped = [char for char in upper if char not in ALPHABET]
+
+    if dropped and strict:
+        raise ValueError(f"Text contains unsupported characters: {sorted(set(dropped))}")
+
+    return ''.join(kept), dropped

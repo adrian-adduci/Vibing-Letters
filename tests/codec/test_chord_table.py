@@ -49,3 +49,26 @@ def test_spare_chords_remain_for_curation():
 def test_common_letters_get_calmer_chords():
     """E is the most frequent letter and should get the lowest-sum chord."""
     assert sum(CHORD_BY_SYMBOL['E']) < sum(CHORD_BY_SYMBOL['Z'])
+
+
+from src.codec.chord_table import normalize
+
+
+def test_lowercase_is_uppercased():
+    assert normalize("hello") == ("HELLO", [])
+
+
+def test_unsupported_characters_are_reported_not_silently_dropped():
+    """Silent dropping breaks round-trip fidelity with no signal to the user."""
+    text, dropped = normalize("A@B#C")
+    assert text == "ABC"
+    assert dropped == ['@', '#']
+
+
+def test_strict_mode_raises_on_unsupported():
+    with pytest.raises(ValueError, match="unsupported"):
+        normalize("A@B", strict=True)
+
+
+def test_spaces_are_preserved():
+    assert normalize("A B") == ("A B", [])
