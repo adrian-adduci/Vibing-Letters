@@ -520,8 +520,23 @@ def test_envelope_starts_and_ends_at_zero():
     assert np.isclose(env[-1], 0.0)
 
 
-def test_envelope_peaks_at_one():
-    assert np.isclose(envelope().max(), 1.0)
+def test_envelope_never_exceeds_unity():
+    """AMPLITUDE scales this envelope, so a peak above 1.0 would silently
+    exceed the configured radial modulation."""
+    assert envelope().max() <= 1.0
+
+
+def test_envelope_reaches_unity_where_the_attack_point_is_sampled():
+    """The continuous envelope peaks at exactly 1.0 at t == ATTACK, where the
+    rise and decay branches meet. The default 12-frame grid steps by 1/11 and
+    never lands on 0.25, so it peaks near 0.94 instead. A 5-frame grid samples
+    t = 0, 0.25, 0.5, 0.75, 1.0 and does hit it exactly.
+
+    Do not "fix" this by normalizing the envelope. The 0.94 discrete peak is
+    what BOUNDARY_GAP_FRAMES was measured against; rescaling would shift every
+    frame amplitude and silently invalidate that constant.
+    """
+    assert np.isclose(envelope(5).max(), 1.0)
 
 
 def test_envelope_attacks_faster_than_it_decays():
@@ -585,7 +600,7 @@ def frame_amplitudes(
 **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/codec/test_waveform.py -v`
-Expected: PASS (9 tests)
+Expected: PASS (10 tests)
 
 **Step 5: Commit**
 
@@ -659,7 +674,7 @@ def quiet_clip(n_bins: int = C.N_BINS) -> np.ndarray:
 **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/codec/test_waveform.py -v`
-Expected: PASS (13 tests)
+Expected: PASS (14 tests)
 
 **Step 5: Commit**
 
@@ -1159,7 +1174,7 @@ def decode(frames: np.ndarray) -> str:
 **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/codec/test_message.py -v`
-Expected: PASS (9 tests)
+Expected: PASS (10 tests)
 
 **Step 5: Commit**
 

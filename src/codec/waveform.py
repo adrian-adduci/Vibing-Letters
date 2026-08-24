@@ -35,3 +35,31 @@ def radius_profile(
     )
     shape = (np.cos(low * theta) + np.cos(high * theta)) / 2.0
     return C.REST_RADIUS * (1.0 + amplitude * shape)
+
+
+def envelope(n_frames: int = C.ACTIVE_FRAMES) -> np.ndarray:
+    """Pluck envelope: fast attack, slow decay, zero at both ends.
+
+    Pinning both ends to zero does three jobs at once. Clips loop seamlessly,
+    any clip can follow any other without a jump cut, and the silence between
+    characters becomes the delimiter the decoder segments on.
+    """
+    t = np.linspace(0.0, 1.0, n_frames)
+    rise = t / C.ATTACK
+    fall = ((1.0 - t) / (1.0 - C.ATTACK)) ** C.DECAY_POWER
+    return np.where(t < C.ATTACK, rise, fall)
+
+
+def frame_amplitudes(
+    n_active: int = C.ACTIVE_FRAMES,
+    n_gap: int = C.TRAILING_SILENCE_FRAMES,
+) -> np.ndarray:
+    """Signed amplitude for each frame of one character clip.
+
+    The envelope shapes the pluck; the cosine term is the standing wave
+    oscillating. Amplitude is signed because the wave inverts each half cycle.
+    Trailing silent frames give the segmenter an unambiguous character boundary.
+    """
+    t = np.linspace(0.0, 1.0, n_active)
+    active = envelope(n_active) * np.cos(2.0 * np.pi * C.OSCILLATIONS * t)
+    return np.concatenate([active, np.zeros(n_gap)])
