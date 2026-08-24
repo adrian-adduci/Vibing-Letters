@@ -943,7 +943,7 @@ def encode(sentence: str, strict: bool = False) -> Encoded:
 **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/codec/test_message.py -v`
-Expected: PASS (4 tests)
+Expected: PASS (6 tests)
 
 **Step 5: Commit**
 
@@ -1055,7 +1055,7 @@ def close_short_gaps(mask: np.ndarray, min_gap: int = C.MIN_CLOSABLE_GAP) -> np.
 **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/codec/test_spectrum.py -v`
-Expected: PASS (16 tests)
+Expected: PASS (17 tests)
 
 **Step 5: Commit**
 
@@ -1174,7 +1174,7 @@ def decode(frames: np.ndarray) -> str:
 **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/codec/test_message.py -v`
-Expected: PASS (10 tests)
+Expected: PASS (12 tests)
 
 **Step 5: Commit**
 
