@@ -1019,8 +1019,14 @@ Expected: FAIL — `ImportError: cannot import name 'active_mask'`
 
 
 def active_mask(frames: np.ndarray) -> np.ndarray:
-    """Flag which frames carry enough modulation to decode."""
-    return np.array([mode_band(frame).max() >= C.QUIET_THRESHOLD for frame in frames])
+    """Flag which frames carry enough modulation to decode.
+
+    `mode_band` transforms along the last axis, so an entire clip goes through
+    one vectorized call rather than a Python loop running a 512-point rFFT per
+    frame. This predicate must stay identical to the one inside `detect_chord`,
+    or segmentation will classify a frame active that detection then refuses.
+    """
+    return mode_band(frames).max(axis=-1) >= C.QUIET_THRESHOLD
 
 
 def runs_of(mask: np.ndarray) -> list[tuple[bool, int, int]]:
@@ -1117,6 +1123,11 @@ Expected: FAIL — `ImportError: cannot import name 'decode'`
 from .chord_table import SYMBOL_BY_CHORD
 from .spectrum import active_mask, close_short_gaps, detect_chord, mode_band, runs_of
 
+# Stands in for a ring that was loud enough to segment but decoded to a chord no
+# character owns. Using the Unicode replacement character keeps decode total: a
+# damaged ring costs one character rather than the whole message.
+UNDECODABLE = '�'
+
 
 def _spaces_in_gap(length: int) -> int:
     """Convert a quiet-run length into a count of spaces.
@@ -1149,7 +1160,7 @@ def decode(frames: np.ndarray) -> str:
             tokens.append(('gap', stop - start))
             continue
         segment = frames[start:stop]
-        strongest = int(np.argmax([mode_band(frame).max() for frame in segment]))
+        strongest = int(np.argmax(mode_band(segment).max(axis=-1)))
         chord, _ = detect_chord(segment[strongest])
         tokens.append(('chord', chord))
 
@@ -1165,7 +1176,13 @@ def decode(frames: np.ndarray) -> str:
     decoded = []
     for kind, value in body:
         if kind == 'chord':
-            decoded.append(SYMBOL_BY_CHORD[value])
+            # A segment can be loud enough to segment yet decode to a chord no
+            # character owns: a degenerate single-mode ring, one of the twelve
+            # spare pairs, or noise. Emit the replacement character rather than
+            # raising, so one corrupted ring costs one character instead of the
+            # whole message. The encoder never produces these, so the round-trip
+            # property is unaffected.
+            decoded.append(SYMBOL_BY_CHORD.get(value, UNDECODABLE))
         else:
             decoded.append(SPACE * _spaces_in_gap(value))
     return ''.join(decoded)
@@ -1324,12 +1341,20 @@ def test_band_limited_noise_does_not_break_decoding():
     assert decode(noisy) == SENTENCE
 
 
-def test_in_band_noise_does_break_decoding():
-    """The band limit is load-bearing, not decorative."""
+def test_in_band_noise_destroys_confidence():
+    """The band limit is load-bearing, not decorative.
+
+    Injecting a third mode at the same strength as the chord's two produces an
+    exact three-way tie. Note the chord returned is still (3, 7) — argsort has
+    to break the tie somehow — so asserting on the chord would pass or fail by
+    luck. Confidence is the honest signal: it collapses to 1.0, meaning the
+    answer is indistinguishable from the runner-up, which is precisely what the
+    metric exists to report.
+    """
     profile = radius_profile((3, 7), C.AMPLITUDE)
     theta = np.linspace(0.0, 2.0 * np.pi, C.N_BINS, endpoint=False)
     corrupted = profile + 0.5 * C.AMPLITUDE * np.cos(5 * theta)
-    assert detect_chord(corrupted)[0] != (3, 7)
+    assert detect_chord(corrupted)[1] == pytest.approx(1.0)
 
 
 @pytest.mark.parametrize("scale", [0.25, 1.0, 7.5, 100.0])
@@ -1344,8 +1369,18 @@ def test_decoding_survives_rotation():
     assert decode(rotated) == SENTENCE
 
 
-def test_confidence_is_high_for_clean_signal():
-    _, confidence = detect_chord(radius_profile((3, 7), C.AMPLITUDE))
+def test_confidence_survives_realistic_noise():
+    """On clean input confidence is ~4e15, so asserting > 10 there constrains
+    nothing. Measured under additive Gaussian noise, 200 trials per sigma:
+    0.005 -> median 83, 0.01 -> 43, 0.02 -> median 21 / min 11. Chord accuracy
+    stayed perfect throughout, so confidence degrades well before correctness
+    does. sigma=0.02 is therefore the point where this assertion actually bites.
+    """
+    rng = np.random.default_rng(0)
+    profile = radius_profile((3, 7), C.AMPLITUDE)
+    noisy = profile + rng.normal(0.0, 0.02, C.N_BINS)
+    chord, confidence = detect_chord(noisy)
+    assert chord == (3, 7)
     assert confidence > 10.0
 ```
 
