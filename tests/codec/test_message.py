@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 
 from src.codec import constants as C
-from src.codec.chord_table import SPARE_CHORDS, SYMBOL_BY_CHORD
+from src.codec.chord_table import CHORD_BY_SYMBOL, SPACE, SPARE_CHORDS, SYMBOL_BY_CHORD
 from src.codec.message import UNDECODABLE, decode, encode
 from src.codec.spectrum import detect_chord, frame_peaks
 from src.codec.waveform import chord_clip, frame_amplitudes, radius_profile
@@ -30,16 +30,18 @@ def test_normalized_text_is_returned():
     assert result.dropped == ['@']
 
 
-def test_interior_space_produces_an_unexcited_clip():
-    """Note this uses an interior space: normalize strips leading and trailing
-    whitespace, so encode(" ") has no space clip at all."""
+def test_interior_space_is_an_excited_ring_like_any_other():
+    """Space stopped being the absence of a signal and became a signal."""
     frames = encode("A B").frames
     space_clip = frames[2 * C.FRAMES_PER_CHAR:3 * C.FRAMES_PER_CHAR]
-    assert np.allclose(space_clip, C.REST_RADIUS)
+    assert not np.allclose(space_clip, C.REST_RADIUS)
+    assert detect_chord(space_clip[3])[0] == CHORD_BY_SYMBOL[SPACE]
 
 
 def test_empty_input_encodes_to_bare_sentinels():
-    result = encode("   ")
+    """Nothing representable survives normalization, so no character clip is
+    emitted between the two sentinels."""
+    result = encode("@@@")
     assert result.text == ""
     assert result.frames.shape == (2 * C.FRAMES_PER_CHAR, C.N_BINS)
 
@@ -53,7 +55,7 @@ def test_decodes_a_sentence():
 
 
 def test_decodes_consecutive_spaces():
-    """Spaces come from quiet-run length, so runs of them must not collapse."""
+    """Each space is its own excited ring, so a run of them must not collapse."""
     assert decode(encode("X  Y").frames) == "X  Y"
 
 

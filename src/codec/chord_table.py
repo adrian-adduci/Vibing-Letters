@@ -13,8 +13,10 @@ SPACE = ' '
 
 # Characters in descending English frequency, then digits, then punctuation.
 # Pairs are handed out lowest-sum first, so frequent letters get the calmest
-# rings and a typical message reads as visually quieter.
-_ASSIGNMENT_ORDER = "ETAOINSRHDLUCMFYWGPBVKXQJZ0123456789.,'-!?"
+# rings and a typical message reads as visually quieter. Space leads because it
+# is the most frequent character in English text -- more frequent than E -- so
+# by the same rule it takes the calmest chord of all.
+_ASSIGNMENT_ORDER = " ETAOINSRHDLUCMFYWGPBVKXQJZ0123456789.,'-!?"
 
 
 def _build_table() -> tuple[dict[str, tuple[int, int]], tuple[tuple[int, int], ...]]:
@@ -28,8 +30,8 @@ def _build_table() -> tuple[dict[str, tuple[int, int]], tuple[tuple[int, int], .
 
     assert len(set(_ASSIGNMENT_ORDER)) == len(_ASSIGNMENT_ORDER), \
         "_ASSIGNMENT_ORDER contains a duplicate character"
-    assert SPACE not in _ASSIGNMENT_ORDER, \
-        "space is encoded as stillness, not a chord"
+    assert SPACE in _ASSIGNMENT_ORDER, \
+        "space is a character like any other"
     assert len(_ASSIGNMENT_ORDER) <= len(pairs), \
         f"{len(_ASSIGNMENT_ORDER)} characters but only {len(pairs)} chords available"
 
@@ -39,7 +41,7 @@ def _build_table() -> tuple[dict[str, tuple[int, int]], tuple[tuple[int, int], .
 
 CHORD_BY_SYMBOL, SPARE_CHORDS = _build_table()
 SYMBOL_BY_CHORD = {chord: symbol for symbol, chord in CHORD_BY_SYMBOL.items()}
-ALPHABET = frozenset(CHORD_BY_SYMBOL) | {SPACE}
+ALPHABET = frozenset(CHORD_BY_SYMBOL)
 
 
 def normalize(text: str, strict: bool = False) -> tuple[str, list[str]]:
@@ -60,8 +62,7 @@ def normalize(text: str, strict: bool = False) -> tuple[str, list[str]]:
         Unicode case mapping can expand one character into several
         ('ss' from the German sharp s, 'FI' from the fi ligature), so the
         result may be longer than the input and `dropped` tracks the
-        uppercased text rather than the original. Leading and trailing
-        whitespace is stripped, because the decoder cannot recover it.
+        uppercased text rather than the original.
         `strict` guards against characters the alphabet cannot represent; it
         does not guarantee the output matches the input character for
         character. The normalized text, not the raw input, is what round-trips.
@@ -73,4 +74,4 @@ def normalize(text: str, strict: bool = False) -> tuple[str, list[str]]:
     if dropped and strict:
         raise ValueError(f"Text contains unsupported characters: {sorted(set(dropped))}")
 
-    return ''.join(kept).strip(), dropped
+    return ''.join(kept), dropped

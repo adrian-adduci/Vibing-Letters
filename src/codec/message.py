@@ -9,9 +9,9 @@ from typing import NamedTuple
 import numpy as np
 
 from . import constants as C
-from .chord_table import CHORD_BY_SYMBOL, SPACE, SYMBOL_BY_CHORD, normalize
+from .chord_table import CHORD_BY_SYMBOL, SYMBOL_BY_CHORD, normalize
 from .spectrum import active_mask, close_short_gaps, detect_chord, frame_peaks, runs_of
-from .waveform import chord_clip, quiet_clip
+from .waveform import chord_clip
 
 
 class Encoded(NamedTuple):
@@ -19,10 +19,10 @@ class Encoded(NamedTuple):
 
     `text` is the normalized form actually encoded, which may differ from the
     caller's input: normalization uppercases, drops unrepresentable characters,
-    strips leading and trailing whitespace, and can even lengthen the string
-    through Unicode case expansion. Returning it means a caller never has to
-    re-derive what was encoded, and it is the correct right-hand side of the
-    round-trip property: decode(result.frames) == result.text.
+    and can even lengthen the string through Unicode case expansion. Returning
+    it means a caller never has to re-derive what was encoded, and it is the
+    correct right-hand side of the round-trip property:
+    decode(result.frames) == result.text.
     """
 
     frames: np.ndarray
@@ -48,7 +48,7 @@ def encode(sentence: str, strict: bool = False) -> Encoded:
 
     clips = [chord_clip(C.SENTINEL_CHORD)]
     for symbol in text:
-        clips.append(quiet_clip() if symbol == SPACE else chord_clip(CHORD_BY_SYMBOL[symbol]))
+        clips.append(chord_clip(CHORD_BY_SYMBOL[symbol]))
     clips.append(chord_clip(C.SENTINEL_CHORD))
 
     return Encoded(np.concatenate(clips), text, dropped)
@@ -66,7 +66,7 @@ def _symbol_for(chord: tuple[int, int] | None, confidence: float) -> str:
     Two distinct failures land here, and neither can be caught by a table
     lookup alone.
 
-    A chord no character owns -- one of the twelve spare pairs -- fails the
+    A chord no character owns -- one of the eleven spare pairs -- fails the
     lookup outright.
 
     A degenerate ring, excited in a single mode, is the subtler case.
@@ -90,20 +90,6 @@ def _symbol_for(chord: tuple[int, int] | None, confidence: float) -> str:
     if chord is None or confidence < C.MIN_CONFIDENCE:
         return UNDECODABLE
     return SYMBOL_BY_CHORD.get(chord, UNDECODABLE)
-
-
-def _spaces_in_gap(length: int) -> int:
-    """Convert a quiet-run length into a count of spaces.
-
-    A space is a still circle, so unlike every other symbol it produces no
-    active segment to count. It is recovered instead from how much longer the
-    silence ran than a plain character boundary.
-
-    The rounding gives generous slack: any gap in [0, 17] yields zero spaces and
-    any in [18, 32] yields one, and the clamp means a short gap can never
-    fabricate a space.
-    """
-    return max(0, round((length - C.BOUNDARY_GAP_FRAMES) / C.FRAMES_PER_CHAR))
 
 
 def _tolerant_peaks(frames: np.ndarray) -> np.ndarray:
@@ -154,20 +140,31 @@ def decode(frames: np.ndarray) -> str:
             transformed at all, or if fewer than two sentinel markers are found.
 
     Note:
-        The two axes are not equally forgiving, and the asymmetry is the main
-        trap when wiring contour extraction into this function.
+        Both axes are now invariant, angular and temporal. Neither carries
+        information in a measurement the caller could rescale.
 
-        The angular axis is fully invariant. Detection divides by mean radius
-        and by bin count, so profiles sampled at 32, 64, 128, 256, 512 or 1024
-        bins all decode identically, as do profiles at any positive scale or any
-        rotation. Callers may resample it freely.
+        The angular axis is invariant because detection divides by mean radius
+        and by bin count: profiles sampled at 32, 64, 128, 256, 512 or 1024 bins
+        all decode identically, as do profiles at any positive scale or any
+        rotation.
 
-        The time axis is rigid. `_spaces_in_gap` measures silence in frames and
-        compares it against FRAMES_PER_CHAR and BOUNDARY_GAP_FRAMES, so frames
-        must arrive at the cadence the encoder emitted them. A timebase mismatch
-        corrupts the output silently instead of failing: on encode("A B"),
-        feeding frames at 2x rate decodes as ' A   B ', 3x as
-        '� AA    BB �', and 0.5x as 'AB' with the space lost entirely.
+        The time axis is invariant because no length along it means anything.
+        Every symbol, space included, is a chord recovered from one frame's
+        shape; a quiet run is a bare delimiter and its length is never read. A
+        platform that resamples the timebase -- among the most common things a
+        platform does on re-encode -- cannot change the decoded text, only how
+        many frames it takes to say it. encode("X  Y") decodes correctly from
+        0.5x through 3x resampling, where it previously corrupted at any rate
+        but 1x.
+
+        One frame-count dependency survives, and it belongs to segmentation
+        rather than to the format: `close_short_gaps` closes the one-frame
+        patch where the standing wave crosses zero mid-character, and it counts
+        frames to do it. Stretch the timebase far enough -- past roughly 3x with
+        nearest-neighbour frame duplication -- and that patch grows past
+        MIN_CLOSABLE_GAP, splitting each character into two segments that decode
+        twice. That is a decoder-tuning limit, not information lost from the
+        wire, and it scales with cadence if a caller ever needs it to.
     """
     frames = np.asarray(frames, dtype=float)
     if frames.ndim != 2:
@@ -208,10 +205,7 @@ def decode(frames: np.ndarray) -> str:
 
     body = tokens[sentinels[0] + 1:sentinels[-1]]
 
-    decoded = []
-    for kind, value in body:
-        if kind == 'chord':
-            decoded.append(_symbol_for(*value))
-        else:
-            decoded.append(SPACE * _spaces_in_gap(value))
+    # Gap tokens are pure delimiters: they separate one ring from the next and
+    # emit nothing themselves.
+    decoded = [_symbol_for(*value) for kind, value in body if kind == 'chord']
     return ''.join(decoded)

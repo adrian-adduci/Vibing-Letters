@@ -6,7 +6,6 @@ from src.codec.waveform import (
     chord_clip,
     envelope,
     frame_amplitudes,
-    quiet_clip,
     radius_profile,
 )
 
@@ -89,8 +88,3 @@ def test_chord_clip_opens_and_closes_on_a_circle():
 def test_chord_clip_actually_deforms_in_between():
     clip = chord_clip((3, 7))
     assert clip[1:-1].std() > 0.0
-
-
-def test_quiet_clip_never_deforms():
-    """Space is the absence of excitation."""
-    assert np.allclose(quiet_clip(), C.REST_RADIUS)

@@ -73,8 +73,3 @@ def chord_clip(chord: tuple[int, int], n_bins: int = C.N_BINS) -> np.ndarray:
     """
     amplitudes = frame_amplitudes() * C.AMPLITUDE
     return np.stack([radius_profile(chord, a, n_bins) for a in amplitudes])
-
-
-def quiet_clip(n_bins: int = C.N_BINS) -> np.ndarray:
-    """Build an unexcited clip: a still circle, which encodes a space."""
-    return np.full((C.FRAMES_PER_CHAR, n_bins), C.REST_RADIUS)

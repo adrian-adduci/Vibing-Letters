@@ -52,19 +52,21 @@ def test_decoding_survives_rotation():
     assert decode(rotated) == SENTENCE
 
 
-def test_in_band_noise_does_not_fabricate_a_character_from_a_space():
+def test_in_band_noise_does_not_fabricate_a_character_in_a_boundary():
     """The hazard the band-limited test above misses entirely.
 
-    A space is a still circle carrying no signal, so it has no margin of its
-    own: any in-band energy can push it over QUIET_THRESHOLD and invent a
+    Every character, space included, is an excited ring with a chord's worth of
+    margin. The quiet frames delimiting them have none: they carry no signal at
+    all, so any in-band energy can push one over QUIET_THRESHOLD and invent a
     character mid-message. `active_mask` is the only thing between that and a
     corrupted decode, which makes this the one place the quiet threshold is
     load-bearing rather than merely convenient.
     """
     rng = np.random.default_rng(3)
     frames = encode("A B").frames.copy()
-    space = slice(2 * C.FRAMES_PER_CHAR, 3 * C.FRAMES_PER_CHAR)
-    frames[space] += rng.normal(0.0, 0.002, frames[space].shape)
+    quiet = np.all(np.isclose(frames, C.REST_RADIUS), axis=1)
+    frames[quiet] += rng.normal(0.0, 0.002, frames[quiet].shape)
+    assert quiet.sum() > 0
     assert decode(frames) == "A B"
 
 

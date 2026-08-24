@@ -17,18 +17,19 @@ from src.codec.chord_table import (
 # ever generated and must bump the codec version. Never "fix" this table to
 # match new generator output -- fix the generator.
 _GOLDEN_TABLE = {
-    'A': (2, 5), 'B': (5, 7), 'C': (2, 9), 'D': (2, 8), 'E': (2, 3), 'F': (4, 7),
-    'G': (3, 9), 'H': (4, 5), 'I': (2, 6), 'J': (6, 7), 'K': (3, 10), 'L': (3, 7),
-    'M': (3, 8), 'N': (3, 5), 'O': (3, 4), 'P': (4, 8), 'Q': (5, 8), 'R': (3, 6),
-    'S': (2, 7), 'T': (2, 4), 'U': (4, 6), 'V': (2, 11), 'W': (2, 10), 'X': (4, 9),
-    'Y': (5, 6), 'Z': (3, 11), '0': (4, 10), '1': (5, 9), '2': (6, 8), '3': (3, 12),
-    '4': (4, 11), '5': (5, 10), '6': (6, 9), '7': (7, 8), '8': (4, 12), '9': (5, 11),
-    '!': (7, 10), "'": (5, 12), ',': (7, 9), '-': (6, 11), '.': (6, 10), '?': (8, 9),
+    ' ': (2, 3), 'A': (3, 4), 'B': (2, 11), 'C': (3, 8), 'D': (3, 7), 'E': (2, 4),
+    'F': (5, 6), 'G': (4, 8), 'H': (2, 8), 'I': (3, 5), 'J': (3, 11), 'K': (4, 9),
+    'L': (4, 6), 'M': (4, 7), 'N': (2, 7), 'O': (2, 6), 'P': (5, 7), 'Q': (6, 7),
+    'R': (4, 5), 'S': (3, 6), 'T': (2, 5), 'U': (2, 9), 'V': (3, 10), 'W': (3, 9),
+    'X': (5, 8), 'Y': (2, 10), 'Z': (4, 10), '0': (5, 9), '1': (6, 8), '2': (3, 12),
+    '3': (4, 11), '4': (5, 10), '5': (6, 9), '6': (7, 8), '7': (4, 12), '8': (5, 11),
+    '9': (6, 10), '!': (8, 9), "'": (6, 11), ',': (5, 12), '-': (7, 10), '.': (7, 9),
+    '?': (6, 12),
 }
 
 _GOLDEN_SPARE = (
-    (6, 12), (7, 11), (8, 10), (7, 12), (8, 11), (9, 10),
-    (8, 12), (9, 11), (9, 12), (10, 11), (10, 12), (11, 12),
+    (7, 11), (8, 10), (7, 12), (8, 11), (9, 10), (8, 12),
+    (9, 11), (9, 12), (10, 11), (10, 12), (11, 12),
 )
 
 
@@ -41,9 +42,9 @@ def test_spare_chords_match_the_canonical_wire_format():
     assert SPARE_CHORDS == _GOLDEN_SPARE
 
 
-def test_all_42_characters_assigned():
-    """26 letters + 10 digits + 6 punctuation marks."""
-    assert len(CHORD_BY_SYMBOL) == 42
+def test_all_43_characters_assigned():
+    """26 letters + 10 digits + 6 punctuation marks + space."""
+    assert len(CHORD_BY_SYMBOL) == 43
 
 
 def test_every_chord_is_unique():
@@ -65,15 +66,20 @@ def test_reverse_lookup_round_trips():
         assert SYMBOL_BY_CHORD[chord] == symbol
 
 
-def test_space_is_in_alphabet_but_has_no_chord():
-    """Space is the absence of excitation, so it needs no chord."""
+def test_space_is_a_character_with_the_calmest_chord():
+    """Space is the most frequent character in English text, so under the
+    table's own frequency rule it takes the lowest-sum chord."""
+    assert SPACE in CHORD_BY_SYMBOL
+    assert sum(CHORD_BY_SYMBOL[SPACE]) == min(sum(c) for c in CHORD_BY_SYMBOL.values())
+
+
+def test_space_is_in_the_alphabet():
     assert SPACE in ALPHABET
-    assert SPACE not in CHORD_BY_SYMBOL
 
 
 def test_spare_chords_remain_for_curation():
-    """55 pairs total, minus 42 characters and 1 sentinel."""
-    assert len(SPARE_CHORDS) == 12
+    """55 pairs total, minus 43 characters and 1 sentinel."""
+    assert len(SPARE_CHORDS) == 11
 
 
 def test_common_letters_get_calmer_chords():
@@ -114,9 +120,9 @@ def test_normalization_is_idempotent():
     assert twice == once
 
 
-def test_leading_and_trailing_spaces_are_stripped():
-    """The decoder cannot recover them, so normalize must not produce them."""
-    assert normalize("  A  ") == ("A", [])
+def test_leading_and_trailing_spaces_are_preserved():
+    """Space is now a decodable character, so there is no reason to discard it."""
+    assert normalize("  A  ") == ("  A  ", [])
 
 
 def test_interior_spaces_are_preserved():

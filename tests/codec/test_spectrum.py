@@ -27,7 +27,8 @@ def test_recovers_every_shape_of_chord(chord):
 
 
 def test_a_still_circle_decodes_to_nothing():
-    """A space carries no signal and must not be reported as a character."""
+    """A ring at rest carries no signal -- it is the boundary between two
+    characters -- and must not be reported as a character itself."""
     chord, _ = detect_chord(np.full(C.N_BINS, C.REST_RADIUS))
     assert chord is None
 
@@ -101,47 +102,6 @@ def test_gap_closing_does_not_merge_across_characters():
 def test_runs_cover_the_whole_sequence():
     mask = active_mask(frame_peaks(chord_clip((3, 7))))
     assert sum(stop - start for _, start, stop in runs_of(mask)) == len(mask)
-
-
-def test_boundary_gap_matches_the_constant():
-    """Tripwire on a measured value, not a correctness assertion.
-
-    BOUNDARY_GAP_FRAMES is a consequence of seven other constants, so it can
-    drift silently: the round-trip test cannot catch it, because encoder and
-    decoder read the same constants and desynchronize in lockstep. A failure
-    here means re-measure and update the constant -- decoding may well still be
-    correct, since the space arithmetic tolerates roughly +/- 7 frames. The test
-    below is the one that fails only when decoding actually breaks.
-
-    The gap is chord-independent: radius_profile splits amplitude as a/2 per
-    mode regardless of which modes, so measuring one pair is sufficient.
-    """
-    clip = np.concatenate([chord_clip((3, 7)), chord_clip((4, 9))])
-    mask = close_short_gaps(active_mask(frame_peaks(clip)))
-    interior_gaps = [
-        stop - start
-        for is_active, start, stop in runs_of(mask)
-        if not is_active and start > 0 and stop < len(mask)
-    ]
-    assert interior_gaps == [C.BOUNDARY_GAP_FRAMES]
-
-
-def test_boundary_gap_rounds_to_the_right_number_of_spaces():
-    """Task 10 needs the gap to round to zero spaces, and one further clip's
-    worth of silence to round to exactly one. That is the real invariant, and
-    it survives amplitude tuning that the exact-match tripwire above would flag.
-    """
-    clip = np.concatenate([chord_clip((3, 7)), chord_clip((4, 9))])
-    mask = close_short_gaps(active_mask(frame_peaks(clip)))
-    measured = next(
-        stop - start
-        for is_active, start, stop in runs_of(mask)
-        if not is_active and start > 0 and stop < len(mask)
-    )
-    assert round((measured - C.BOUNDARY_GAP_FRAMES) / C.FRAMES_PER_CHAR) == 0
-    assert round(
-        (measured + C.FRAMES_PER_CHAR - C.BOUNDARY_GAP_FRAMES) / C.FRAMES_PER_CHAR
-    ) == 1
 
 
 def test_frame_peaks_matches_the_detection_threshold():

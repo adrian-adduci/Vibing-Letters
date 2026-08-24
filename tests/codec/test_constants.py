@@ -28,17 +28,6 @@ def test_quiet_threshold_is_below_the_expected_peak():
     assert C.QUIET_THRESHOLD < C.AMPLITUDE / 2
 
 
-def test_closable_gap_does_not_swallow_a_boundary():
-    """Closing gaps at or above the real boundary length would merge characters."""
-    assert C.MIN_CLOSABLE_GAP < C.BOUNDARY_GAP_FRAMES
-
-
-def test_boundary_gap_is_shorter_than_a_character():
-    """Space recovery is round((run - BOUNDARY_GAP_FRAMES) / FRAMES_PER_CHAR);
-    an over-long boundary makes the arithmetic ambiguous."""
-    assert C.BOUNDARY_GAP_FRAMES < C.FRAMES_PER_CHAR
-
-
 def test_wire_format_values_are_pinned():
     """Explicit lock on values that cannot change without breaking old messages."""
     assert (C.MIN_MODE, C.MAX_MODE) == (2, 12)
