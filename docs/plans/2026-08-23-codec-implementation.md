@@ -43,30 +43,30 @@ every character twice. Fix: close any quiet run shorter than `MIN_CLOSABLE_GAP =
 before segmenting. Measured margin — interior quiet runs are 1 frame, boundary runs
 are 10 or more. Comfortable.
 
-**3. Spaces cannot be recovered as segments; they are recovered from gap length.**
-A space is a still circle, so it produces *no* active run at all — there is nothing to
-count. Spaces are instead read from the length of the quiet run:
+**3. Spaces could not be recovered as segments — so space stopped being silence.**
 
-```
-spaces = round((run_length - BOUNDARY_GAP_FRAMES) / FRAMES_PER_CHAR)
-```
+The original design made a space a still circle, which produces *no* active run at all.
+There was nothing to count, so spaces were read from the length of the quiet run
+instead: `round((run_length - BOUNDARY_GAP_FRAMES) / FRAMES_PER_CHAR)`, with a plain
+character boundary measuring 10 frames and each space adding 15.
 
-Measured: a plain character boundary is 10 frames; each space adds 15. Runs of 10, 25,
-40 map to 0, 1, 2 spaces — cleanly separable.
+That worked, and had more slack than it first appeared — roughly ±7 frames, since the
+expression rounds to the nearest multiple of `FRAMES_PER_CHAR`. Sweeping `AMPLITUDE`
+from 0.03 to 0.30 moved the measured gap between 14 and 7 without ever changing the
+recovered text.
 
-The rounding gives more slack than it first appears. Because the expression rounds to
-the nearest multiple of `FRAMES_PER_CHAR`, *any* gap in [3, 17] yields zero spaces and
-any gap in [18, 32] yields one, and the `max(0, ...)` clamp means a short gap can never
-fabricate a space. Sweeping `AMPLITUDE` from 0.03 to 0.30 moves the measured gap between
-14 and 7 without ever changing the recovered text. So `BOUNDARY_GAP_FRAMES` is a nominal
-centre with roughly ±7 frames of tolerance, not a cliff edge — which is why the exact
-guard test is a tripwire on drift rather than a correctness assertion.
+**It was still wrong, and was reversed.** It made space the only symbol depending on
+frame count rather than on image content, contradicting the design's central decision
+that the artwork carries the message. Every other axis was invariant — rescaling,
+rotation, angular resampling from 32 to 1024 bins — but a platform resampling the
+timebase silently turned `"A B"` into `" A   B "`, and frame-rate change is among the
+most common things re-encoding does.
 
-> **Note for later:** this is the least robust part of the codec, because it depends on
-> frame counts surviving intact rather than on the image content. Twelve spare chords
-> exist; assigning one to space would make it a segment like any other and remove the
-> arithmetic entirely, at the cost of the "silence is a still circle" idea. Flagged,
-> not decided.
+Space is now a chord like any other, and takes `{2,3}` — the calmest pair — because it
+is the most frequent character in English text. `_spaces_in_gap` and
+`BOUNDARY_GAP_FRAMES` were deleted. Gaps became pure delimiters carrying no
+information, and `normalize` stopped stripping leading and trailing whitespace, since
+the decoder can now recover it.
 
 ---
 
@@ -90,14 +90,20 @@ All live in `src/codec/constants.py`. Every value below was verified by prototyp
 | `DECAY_POWER` | 2.0 | Decay curve exponent |
 | `QUIET_THRESHOLD` | 0.01 | Active if strongest mode exceeds 1% radial modulation |
 | `MIN_CLOSABLE_GAP` | 3 | Quiet runs shorter than this are closed |
-| `BOUNDARY_GAP_FRAMES` | 10 | Quiet-run length at a plain character boundary |
 | `MIN_CONFIDENCE` | 5.0 | Below this, a segment is reported undecodable rather than guessed |
 
-`MIN_CONFIDENCE` separates two measured populations. A degenerate single-mode
-ring scores 1.35–2.28, because its second "peak" is float rounding noise. A
-genuine chord scores ~4e15 clean and no lower than 11.1 under σ=0.02 noise,
-which is already past the point where confidence degrades faster than accuracy.
-5.0 sits between them with roughly 2× margin on each side.
+`MIN_CONFIDENCE` separates two measured populations. A degenerate single-mode ring
+scores **1.12–1.93** at the frame `decode` actually inspects, because its second
+"peak" is float rounding noise. A genuine chord scores ~4e15 clean and bottoms out at
+**9.82** under σ=0.02 noise across 8,800 trials at 100% accuracy — already past the
+point where confidence degrades faster than correctness does.
+
+Two caveats the earlier drafts of this paragraph got wrong. Across *all* above-threshold
+frames of a degenerate clip, not just the strongest, confidence reaches **4.94** — a
+1.2% margin below the gate. `MIN_CONFIDENCE` works only because `decode` inspects the
+argmax frame; anything that changes frame selection walks into that band. And the
+genuine-chord floor shrinks as you sample more chords: 11.1 came from one chord, 9.82
+from all 43. Widen the sweep before trusting either number.
 
 ---
 

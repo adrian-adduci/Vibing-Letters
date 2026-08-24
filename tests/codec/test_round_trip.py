@@ -39,9 +39,14 @@ def test_long_sentence_round_trips():
     "",                    # empty
 ])
 def test_property_holds_for_arbitrary_raw_input(raw):
-    """The property is TOTAL - no input class is excluded. That is only true
-    because normalize already removed the unrecoverable cases (leading and
-    trailing whitespace), so the right-hand side is the normalized text rather
-    than the caller's original string."""
+    """The property is TOTAL - no input class is excluded.
+
+    The right-hand side is the normalized text rather than the caller's original
+    string, because normalization is genuinely lossy: it uppercases, drops
+    characters the alphabet cannot represent, and can lengthen the string
+    through Unicode case expansion. Whitespace is no longer among the losses -
+    once space became a chord like any other, leading and trailing spaces
+    round-trip exactly.
+    """
     result = encode(raw)
     assert decode(result.frames) == result.text

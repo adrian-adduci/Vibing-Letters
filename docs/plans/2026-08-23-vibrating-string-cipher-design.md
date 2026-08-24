@@ -43,6 +43,14 @@ recoverable from the image itself with no external lookup.
 | 8 | Format | WebP canonical + GIF fallback | Quality and size vs. universal compatibility |
 | 9 | Asset generation | One styled still per chord, warped through the envelope | No temporal flicker; 38→44 curated model calls total |
 | 10 | Decoder | Client-side in browser | No upload, no server, message never leaves the device |
+| 11 | Space | A chord like any other, `{2,3}` | Reverses an earlier choice; see below |
+
+**Decision 11 was made during implementation, and reverses an earlier one.** Space was
+originally the *absence* of excitation, recovered from the length of the quiet run
+between characters. Building the codec showed that made space the only symbol
+depending on frame count rather than image content — contradicting decision #2 — and a
+platform resampling the timebase silently corrupted the text. Space became a chord;
+the gap arithmetic and its constant were deleted entirely.
 
 **Known cost of #7:** metadata is stripped by most platforms on re-encode, and a viewer
 has no visual cue that a decoder exists. Accepted deliberately in favour of an
@@ -59,11 +67,26 @@ message requires the full file.
 
 Modes 2–12 give 11 modes and C(11,2) = **55 unordered pairs**. Of these:
 
-- **42** are assigned to characters
+- **43** are assigned to characters
 - **1** is reserved as a start/end sentinel
-- **12** are held spare for curation and future expansion
+- **11** are held spare for curation and future expansion
 
-**Space** is the absence of excitation — a still circle. It needs no chord.
+**Space is a character like any other**, and takes the calmest chord in the table.
+
+An earlier draft made space the *absence* of excitation — a still circle, recovered
+from the length of the quiet run between characters. That was reversed during
+implementation, because it made space the only symbol depending on frame count rather
+than on image content. Every other axis is invariant: rescaling, rotation, angular
+resampling from 32 to 1024 bins. But a platform that resamples the timebase silently
+turned `"A B"` into `" A   B "`, and frame-rate change is among the most common things
+re-encoding does. That contradicted decision #2 — that the artwork itself carries the
+message.
+
+Space is also the most frequent character in English text, more frequent than `E`, so
+under the table's own "frequent characters get the calmest rings" rule it earns the
+lowest-sum pair. It is still visually the quietest ring: `{2,3}` is a slow two-lobe
+wobble. The silence did not disappear from the piece either — every clip still opens
+and closes on a perfect circle. It simply stopped being load-bearing for decoding.
 
 Mode 1 is excluded by necessity, not preference: `R + A·cos(θ)` is not a deformation
 but a *translation* of the circle. It would shift the centroid the decoder relies on
@@ -101,16 +124,17 @@ never be confused with a character.
 
 | | | | | | |
 |---|---|---|---|---|---|
-| `A` {2,5} | `B` {5,7} | `C` {2,9} | `D` {2,8} | `E` {2,3} | `F` {4,7} |
-| `G` {3,9} | `H` {4,5} | `I` {2,6} | `J` {6,7} | `K` {3,10} | `L` {3,7} |
-| `M` {3,8} | `N` {3,5} | `O` {3,4} | `P` {4,8} | `Q` {5,8} | `R` {3,6} |
-| `S` {2,7} | `T` {2,4} | `U` {4,6} | `V` {2,11} | `W` {2,10} | `X` {4,9} |
-| `Y` {5,6} | `Z` {3,11} | `0` {4,10} | `1` {5,9} | `2` {6,8} | `3` {3,12} |
-| `4` {4,11} | `5` {5,10} | `6` {6,9} | `7` {7,8} | `8` {4,12} | `9` {5,11} |
-| `!` {7,10} | `'` {5,12} | `,` {7,9} | `-` {6,11} | `.` {6,10} | `?` {8,9} |
+| `SPACE` {2,3} | `A` {3,4} | `B` {2,11} | `C` {3,8} | `D` {3,7} | `E` {2,4} |
+| `F` {5,6} | `G` {4,8} | `H` {2,8} | `I` {3,5} | `J` {3,11} | `K` {4,9} |
+| `L` {4,6} | `M` {4,7} | `N` {2,7} | `O` {2,6} | `P` {5,7} | `Q` {6,7} |
+| `R` {4,5} | `S` {3,6} | `T` {2,5} | `U` {2,9} | `V` {3,10} | `W` {3,9} |
+| `X` {5,8} | `Y` {2,10} | `Z` {4,10} | `0` {5,9} | `1` {6,8} | `2` {3,12} |
+| `3` {4,11} | `4` {5,10} | `5` {6,9} | `6` {7,8} | `7` {4,12} | `8` {5,11} |
+| `9` {6,10} | `!` {8,9} | `'` {6,11} | `,` {5,12} | `-` {7,10} | `.` {7,9} |
+| `?` {6,12} | | | | | |
 
-**Sentinel:** {2,12} · **Space:** no chord
-**Spare:** {6,12} {7,11} {8,10} {7,12} {8,11} {9,10} {8,12} {9,11} {9,12} {10,11} {10,12} {11,12}
+**Sentinel:** {2,12}
+**Spare:** {7,11} {8,10} {7,12} {8,11} {9,10} {8,12} {9,11} {9,12} {10,11} {10,12} {11,12}
 
 This table is data, not logic. It lives in a versioned file so curation can reassign
 any character to a spare pair without touching code. Any change is a breaking change
@@ -130,7 +154,7 @@ to the format and must bump the codec version.
 
 ## 2. Asset pipeline (build time)
 
-Runs once, offline. Produces 44 clips: 42 characters, 1 sentinel, 1 space.
+Runs once, offline. Produces 44 clips: 43 characters (space included) and 1 sentinel.
 
 Per symbol:
 
@@ -203,10 +227,17 @@ as `r(θ)` into 512 uniform angular bins.
 **Segment** — compute radial variance per frame. Runs of near-zero variance are the
 neutral circles between characters.
 
-**Per segment** — take the maximum-variance frame, normalize `r(θ)` by its mean
+**Per segment** — take the maximum-excitation frame, normalize `r(θ)` by its mean
 radius, subtract the mean, FFT. The two largest magnitude peaks in bins 2–12 are
-{n₁, n₂}. Look up the chord. A segment whose peak variance never clears the noise
-floor is a **space**. Sentinels at the ends are stripped.
+{n₁, n₂}. Look up the chord — space included, since it is a character like any other.
+Sentinels at the ends are stripped.
+
+A segment whose chord belongs to no character, or whose confidence falls below
+`MIN_CONFIDENCE`, becomes a replacement character rather than raising, so one damaged
+ring costs one character instead of the whole message. The confidence gate is
+load-bearing: a *degenerate* ring excited in a single mode returns a valid-looking
+pair — mode 5 comes back as {4,5}, meaning `R` — so a table lookup alone cannot see
+anything wrong.
 
 **Output** — the sentence, plus per-character confidence: the ratio of peak magnitude
 to the largest non-peak bin.
@@ -243,7 +274,7 @@ codec, not estimated.
 | Angular resampling | **Fully invariant** — 32 to 1024 bins decode identically |
 | Rescaling | **Fully invariant** — verified 0.25× to 100× |
 | Rotation | **Fully invariant** — magnitude spectrum discards phase |
-| Frame cadence | **Rigid** — no tolerance at all |
+| Frame cadence | **Tolerant** — 0.5× to 3.0× resampling decodes correctly |
 
 Three consequences worth carrying into asset work.
 
@@ -259,11 +290,19 @@ replacement character rather than a wrong letter, and the dominant mode (76%) is
 then becomes its own segment. Silent corruption begins only at σ=0.045, and even
 there it is a dropped character rather than a substituted one.
 
-**The angular axis is free; the time axis is not.** Contour extraction may
-sample angles at any resolution, but frames must arrive at the encoder's
-cadence. At 2× frame rate `"A B"` decodes as `" A   B "`; at 0.5× the space
-vanishes. This is the largest integration trap for the image decoder, and it
-fails silently rather than loudly.
+**Both axes are now largely free.** Contour extraction may sample angles at any
+resolution, and frames resample from 0.5× to 3.0× without error. This was not
+true of the earlier design, where space was recovered from gap length: at 2×
+frame rate `"A B"` decoded as `" A   B "`, silently. Making space a chord
+removed that dependency.
+
+One frame-count dependency survives, in the decoder rather than in the wire.
+`close_short_gaps` closes quiet runs shorter than `MIN_CLOSABLE_GAP = 3` — the
+one-frame patch where the standing wave crosses zero mid-character. Duplicate
+frames at 3× or more by nearest-neighbour and that patch outgrows the threshold,
+splitting every character into two segments that each decode: `"X  Y"` becomes
+`"�XX    YY�"`. The constant scales with cadence if it ever needs to, so this is
+a tuning limit rather than information lost.
 
 ---
 
