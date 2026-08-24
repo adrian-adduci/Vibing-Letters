@@ -1,9 +1,12 @@
 """Tests for whole-sentence encoding and decoding."""
 import numpy as np
+import pytest
 
 from src.codec import constants as C
-from src.codec.message import encode
+from src.codec.chord_table import SPARE_CHORDS
+from src.codec.message import UNDECODABLE, decode, encode
 from src.codec.spectrum import detect_chord
+from src.codec.waveform import chord_clip, frame_amplitudes, radius_profile
 
 
 def test_frame_count_includes_two_sentinels():
@@ -39,3 +42,58 @@ def test_empty_input_encodes_to_bare_sentinels():
     result = encode("   ")
     assert result.text == ""
     assert result.frames.shape == (2 * C.FRAMES_PER_CHAR, C.N_BINS)
+
+
+def test_decodes_a_single_character():
+    assert decode(encode("A").frames) == "A"
+
+
+def test_decodes_a_sentence():
+    assert decode(encode("HELLO WORLD").frames) == "HELLO WORLD"
+
+
+def test_decodes_consecutive_spaces():
+    """Spaces come from quiet-run length, so runs of them must not collapse."""
+    assert decode(encode("X  Y").frames) == "X  Y"
+
+
+def test_decodes_digits_and_punctuation():
+    assert decode(encode("MEET ME AT 8PM!").frames) == "MEET ME AT 8PM!"
+
+
+def test_sentinels_are_stripped_from_output():
+    assert decode(encode("A").frames) == "A"
+
+
+def test_empty_message_decodes_to_empty_string():
+    """Two adjacent sentinels with nothing between them."""
+    assert decode(encode("").frames) == ""
+
+
+def test_missing_sentinels_raise():
+    with pytest.raises(ValueError):
+        decode(chord_clip((3, 7)))
+
+
+def test_degenerate_ring_is_not_decoded_as_a_letter():
+    """A single-mode ring is the loudest shape the format can produce, yet
+    detect_chord reports it as a valid-looking pair - mode 5 comes back as
+    (4, 5), which means 'H'. Only the confidence gate catches it.
+    """
+    degenerate = np.stack([
+        radius_profile((5, 5), a) for a in frame_amplitudes() * C.AMPLITUDE
+    ])
+    frames = np.concatenate([
+        chord_clip(C.SENTINEL_CHORD), degenerate, chord_clip(C.SENTINEL_CHORD)
+    ])
+    assert decode(frames) == UNDECODABLE
+
+
+def test_spare_chords_are_not_decoded_as_letters():
+    """The twelve spare pairs belong to no character."""
+    frames = np.concatenate([
+        chord_clip(C.SENTINEL_CHORD),
+        chord_clip(SPARE_CHORDS[0]),
+        chord_clip(C.SENTINEL_CHORD),
+    ])
+    assert decode(frames) == UNDECODABLE
