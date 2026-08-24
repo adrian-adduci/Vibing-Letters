@@ -5,7 +5,7 @@ import pytest
 
 from src.codec import constants as C
 from src.codec.spectrum import detect_chord, mode_band
-from src.codec.waveform import radius_profile
+from src.codec.waveform import chord_clip, radius_profile
 
 
 def test_recovers_the_encoded_chord():
@@ -48,3 +48,26 @@ def test_sign_flip_does_not_change_the_chord():
 def test_mode_band_peaks_at_the_encoded_modes():
     band = mode_band(radius_profile((3, 7), C.AMPLITUDE))
     assert int(np.argmax(band)) + C.MIN_MODE in (3, 7)
+
+
+def test_mode_band_reports_modulation_in_amplitude_units():
+    """QUIET_THRESHOLD is only interpretable if peaks equal AMPLITUDE / 2."""
+    band = mode_band(radius_profile((3, 7), C.AMPLITUDE))
+    assert len(band) == C.MAX_MODE - C.MIN_MODE + 1
+    assert band[3 - C.MIN_MODE] == pytest.approx(C.AMPLITUDE / 2)
+    assert band[7 - C.MIN_MODE] == pytest.approx(C.AMPLITUDE / 2)
+    others = np.delete(band, [3 - C.MIN_MODE, 7 - C.MIN_MODE])
+    assert others.max() < 1e-12
+
+
+def test_mode_band_accepts_a_stack_of_profiles():
+    """Tasks 9 and 10 pass whole clips; slicing frames instead of modes would
+    be silent, so pin the shape contract."""
+    band = mode_band(chord_clip((3, 7)))
+    assert band.shape == (C.FRAMES_PER_CHAR, C.MAX_MODE - C.MIN_MODE + 1)
+
+
+def test_mode_band_rejects_an_undersampled_profile():
+    """Below 2*MAX_MODE+1 samples, aliasing returns confidently wrong chords."""
+    with pytest.raises(ValueError, match="at least"):
+        mode_band(radius_profile((9, 12), C.AMPLITUDE, n_bins=16))
