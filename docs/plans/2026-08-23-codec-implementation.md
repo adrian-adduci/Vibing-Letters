@@ -827,25 +827,38 @@ from src.codec.spectrum import detect_chord
 
 
 def test_frame_count_includes_two_sentinels():
-    frames, _ = encode("AB")
-    assert frames.shape == ((2 + 2) * C.FRAMES_PER_CHAR, C.N_BINS)
+    assert encode("AB").frames.shape == ((2 + 2) * C.FRAMES_PER_CHAR, C.N_BINS)
 
 
 def test_message_opens_with_the_sentinel():
-    frames, _ = encode("A")
-    peak_frame = frames[:C.ACTIVE_FRAMES][3]
+    peak_frame = encode("A").frames[:C.ACTIVE_FRAMES][3]
     assert detect_chord(peak_frame)[0] == C.SENTINEL_CHORD
 
 
 def test_unsupported_characters_are_reported():
-    _, dropped = encode("A@B")
-    assert dropped == ['@']
+    assert encode("A@B").dropped == ['@']
 
 
-def test_space_produces_an_unexcited_clip():
-    frames, _ = encode(" ")
-    space_clip = frames[C.FRAMES_PER_CHAR:2 * C.FRAMES_PER_CHAR]
+def test_normalized_text_is_returned():
+    """Normalization is lossy, so callers must be able to see what was encoded
+    rather than re-deriving it."""
+    result = encode("hello@")
+    assert result.text == "HELLO"
+    assert result.dropped == ['@']
+
+
+def test_interior_space_produces_an_unexcited_clip():
+    """Note this uses an interior space: normalize strips leading and trailing
+    whitespace, so encode(" ") has no space clip at all."""
+    frames = encode("A B").frames
+    space_clip = frames[2 * C.FRAMES_PER_CHAR:3 * C.FRAMES_PER_CHAR]
     assert np.allclose(space_clip, C.REST_RADIUS)
+
+
+def test_empty_input_encodes_to_bare_sentinels():
+    result = encode("   ")
+    assert result.text == ""
+    assert result.frames.shape == (2 * C.FRAMES_PER_CHAR, C.N_BINS)
 ```
 
 **Step 2: Run test to verify it fails**
@@ -863,6 +876,8 @@ The boundary of the codec: text in, radius profiles out, and back again. No
 image handling lives here or anywhere below it.
 """
 
+from typing import NamedTuple
+
 import numpy as np
 
 from . import constants as C
@@ -870,7 +885,23 @@ from .chord_table import CHORD_BY_SYMBOL, SPACE, normalize
 from .waveform import chord_clip, quiet_clip
 
 
-def encode(sentence: str, strict: bool = False) -> tuple[np.ndarray, list[str]]:
+class Encoded(NamedTuple):
+    """The result of encoding a sentence.
+
+    `text` is the normalized form actually encoded, which may differ from the
+    caller's input: normalization uppercases, drops unrepresentable characters,
+    strips leading and trailing whitespace, and can even lengthen the string
+    through Unicode case expansion. Returning it means a caller never has to
+    re-derive what was encoded, and it is the correct right-hand side of the
+    round-trip property: decode(result.frames) == result.text.
+    """
+
+    frames: np.ndarray
+    text: str
+    dropped: list[str]
+
+
+def encode(sentence: str, strict: bool = False) -> Encoded:
     """Encode a sentence as a sequence of radius profiles.
 
     The message is bracketed by sentinel clips so the decoder can find its
@@ -881,7 +912,8 @@ def encode(sentence: str, strict: bool = False) -> tuple[np.ndarray, list[str]]:
         strict: Raise on unsupported characters instead of dropping them.
 
     Returns:
-        tuple: (frames of shape (n_frames, N_BINS), dropped characters)
+        Encoded: frames of shape (n_frames, N_BINS), the normalized text, and
+        the characters that were dropped.
     """
     text, dropped = normalize(sentence, strict=strict)
 
@@ -890,7 +922,7 @@ def encode(sentence: str, strict: bool = False) -> tuple[np.ndarray, list[str]]:
         clips.append(quiet_clip() if symbol == SPACE else chord_clip(CHORD_BY_SYMBOL[symbol]))
     clips.append(chord_clip(C.SENTINEL_CHORD))
 
-    return np.concatenate(clips), dropped
+    return Encoded(np.concatenate(clips), text, dropped)
 ```
 
 **Step 4: Run test to verify it passes**
@@ -1033,29 +1065,29 @@ from src.codec.message import decode
 
 
 def test_decodes_a_single_character():
-    frames, _ = encode("A")
-    assert decode(frames) == "A"
+    assert decode(encode("A").frames) == "A"
 
 
 def test_decodes_a_sentence():
-    frames, _ = encode("HELLO WORLD")
-    assert decode(frames) == "HELLO WORLD"
+    assert decode(encode("HELLO WORLD").frames) == "HELLO WORLD"
 
 
 def test_decodes_consecutive_spaces():
     """Spaces come from quiet-run length, so runs of them must not collapse."""
-    frames, _ = encode("X  Y")
-    assert decode(frames) == "X  Y"
+    assert decode(encode("X  Y").frames) == "X  Y"
 
 
 def test_decodes_digits_and_punctuation():
-    frames, _ = encode("MEET ME AT 8PM!")
-    assert decode(frames) == "MEET ME AT 8PM!"
+    assert decode(encode("MEET ME AT 8PM!").frames) == "MEET ME AT 8PM!"
 
 
 def test_sentinels_are_stripped_from_output():
-    frames, _ = encode("A")
-    assert decode(frames) == "A"
+    assert decode(encode("A").frames) == "A"
+
+
+def test_empty_message_decodes_to_empty_string():
+    """Two adjacent sentinels with nothing between them."""
+    assert decode(encode("").frames) == ""
 ```
 
 **Step 2: Run test to verify it fails**
@@ -1165,8 +1197,8 @@ _SYMBOLS = sorted(CHORD_BY_SYMBOL) + [SPACE]
 @pytest.mark.parametrize("symbol", sorted(CHORD_BY_SYMBOL))
 def test_every_character_round_trips(symbol):
     """Exhaustive over the alphabet, not a sample."""
-    frames, _ = encode(symbol)
-    assert decode(frames) == symbol
+    result = encode(symbol)
+    assert decode(result.frames) == result.text
 
 
 @pytest.mark.parametrize("seed", range(50))
@@ -1174,18 +1206,30 @@ def test_random_sentences_round_trip(seed):
     rng = random.Random(seed)
     length = rng.randint(1, 12)
     sentence = ''.join(rng.choice(_SYMBOLS) for _ in range(length))
-    # Leading and trailing spaces have no active segment to anchor them and are
-    # not recoverable by design; the encoder's own normalization keeps them, so
-    # compare against the trimmed form.
-    sentence = sentence.strip() or 'A'
-    frames, _ = encode(sentence)
-    assert decode(frames) == sentence
+    result = encode(sentence)
+    assert decode(result.frames) == result.text
 
 
 def test_long_sentence_round_trips():
-    sentence = "THE QUICK BROWN FOX JUMPS OVER 13 LAZY DOGS, TWICE!"
-    frames, _ = encode(sentence)
-    assert decode(frames) == sentence
+    result = encode("THE QUICK BROWN FOX JUMPS OVER 13 LAZY DOGS, TWICE!")
+    assert decode(result.frames) == result.text
+
+
+@pytest.mark.parametrize("raw", [
+    "  hello world  ",     # lowercase plus surrounding whitespace
+    "Café 8pm!",           # unsupported accented character
+    "\tX  Y\n",            # tabs, newline, interior double space
+    "   ",                 # whitespace only
+    "@@@",                 # nothing representable at all
+    "",                    # empty
+])
+def test_property_holds_for_arbitrary_raw_input(raw):
+    """The property is TOTAL — no input class is excluded. That is only true
+    because normalize already removed the unrecoverable cases (leading and
+    trailing whitespace), so the right-hand side is the normalized text rather
+    than the caller's original string."""
+    result = encode(raw)
+    assert decode(result.frames) == result.text
 ```
 
 **Step 2: Run test to verify it fails**
@@ -1194,20 +1238,20 @@ Run: `.venv/bin/python -m pytest tests/codec/test_round_trip.py -v`
 Expected: PASS if tasks 1-10 are correct. If any case fails, fix the codec — do
 not weaken the test.
 
-**Step 3: Handle leading and trailing spaces explicitly**
+**Step 3: Confirm the property is total, not narrowed**
 
-The test above sidesteps leading/trailing spaces. That is a real limitation, not a
-test artifact: a leading space is silence adjacent to the sentinel's own silence, so
-its length is ambiguous. Document it in the module docstring of
-`src/codec/message.py`:
+An earlier draft of this plan excluded leading and trailing spaces from the property
+and pre-trimmed the test's own inputs to stay green. That was the wrong fix: it hid a
+real input class the codec could not handle inside another test's setup.
 
-```python
-# append to the encode() docstring
-    Note:
-        Leading and trailing spaces are not recoverable. Their silence merges
-        with the sentinel's own trailing silence, leaving no unambiguous length
-        to measure. Interior spaces, including runs of them, round-trip exactly.
-```
+The right fix lives in `normalize`, which now strips leading and trailing whitespace
+because the decoder provably cannot recover it — that silence merges with the
+sentinel's own. With that, `decode(encode(s).frames) == encode(s).text` holds for
+**every** input with no exclusions.
+
+Verify that no test in this file narrows its own input before asserting. If any case
+needs a `.strip()`, a `try/except`, or a skip to pass, the codec has a real gap and
+the gap is what needs fixing — never the test.
 
 **Step 4: Run the whole suite**
 
