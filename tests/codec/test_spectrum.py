@@ -82,24 +82,24 @@ def test_mode_band_rejects_an_undersampled_profile():
 
 def test_a_character_splits_without_gap_closing():
     """The standing wave crosses zero mid-clip, so raw runs over-segment."""
-    mask = active_mask(chord_clip((3, 7)))
+    mask = active_mask(frame_peaks(chord_clip((3, 7))))
     assert sum(1 for is_active, _, _ in runs_of(mask) if is_active) > 1
 
 
 def test_gap_closing_reunites_one_character():
     """Closing short quiet runs is what makes a character a single segment."""
-    mask = close_short_gaps(active_mask(chord_clip((3, 7))))
+    mask = close_short_gaps(active_mask(frame_peaks(chord_clip((3, 7)))))
     assert sum(1 for is_active, _, _ in runs_of(mask) if is_active) == 1
 
 
 def test_gap_closing_does_not_merge_across_characters():
     clip = np.concatenate([chord_clip((3, 7)), chord_clip((4, 9))])
-    mask = close_short_gaps(active_mask(clip))
+    mask = close_short_gaps(active_mask(frame_peaks(clip)))
     assert sum(1 for is_active, _, _ in runs_of(mask) if is_active) == 2
 
 
 def test_runs_cover_the_whole_sequence():
-    mask = active_mask(chord_clip((3, 7)))
+    mask = active_mask(frame_peaks(chord_clip((3, 7))))
     assert sum(stop - start for _, start, stop in runs_of(mask)) == len(mask)
 
 
@@ -117,7 +117,7 @@ def test_boundary_gap_matches_the_constant():
     mode regardless of which modes, so measuring one pair is sufficient.
     """
     clip = np.concatenate([chord_clip((3, 7)), chord_clip((4, 9))])
-    mask = close_short_gaps(active_mask(clip))
+    mask = close_short_gaps(active_mask(frame_peaks(clip)))
     interior_gaps = [
         stop - start
         for is_active, start, stop in runs_of(mask)
@@ -132,7 +132,7 @@ def test_boundary_gap_rounds_to_the_right_number_of_spaces():
     it survives amplitude tuning that the exact-match tripwire above would flag.
     """
     clip = np.concatenate([chord_clip((3, 7)), chord_clip((4, 9))])
-    mask = close_short_gaps(active_mask(clip))
+    mask = close_short_gaps(active_mask(frame_peaks(clip)))
     measured = next(
         stop - start
         for is_active, start, stop in runs_of(mask)

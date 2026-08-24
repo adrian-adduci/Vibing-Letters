@@ -10,7 +10,7 @@ import numpy as np
 
 from . import constants as C
 from .chord_table import CHORD_BY_SYMBOL, SPACE, SYMBOL_BY_CHORD, normalize
-from .spectrum import close_short_gaps, detect_chord, frame_peaks, runs_of
+from .spectrum import active_mask, close_short_gaps, detect_chord, frame_peaks, runs_of
 from .waveform import chord_clip, quiet_clip
 
 
@@ -73,9 +73,16 @@ def _symbol_for(chord: tuple[int, int] | None, confidence: float) -> str:
     `detect_chord` always returns two distinct modes, so a one-mode ring comes
     back as its real peak paired with whatever float-rounding bin ranked second:
     a ring at mode 5 reports (4, 5), which is a perfectly valid entry meaning
-    'H'. The lookup cannot see anything wrong. Only confidence separates them --
-    such rings score 1.09 to 1.46, while genuine chords score no lower than 11.1
-    even under heavy noise.
+    'H'. The lookup cannot see anything wrong. Only confidence separates them.
+
+    That separation is narrower than it looks, and depends on which frame the
+    caller hands over. At the argmax frame of a degenerate clip -- the frame
+    `decode` selects -- confidence tops out well clear of the gate. Across every
+    above-threshold frame of the same clip it reaches within 1.2% of it. Anyone
+    who changes how a segment's representative frame is chosen, or any image
+    decoder that lands on a frame other than the loudest, gives up most of that
+    margin. See MIN_CONFIDENCE in constants for the measured populations; the
+    numbers are kept in one place deliberately.
 
     The encoder never emits either case, so the round-trip property is
     unaffected; both arise only from corrupted or externally supplied rings.
@@ -92,11 +99,43 @@ def _spaces_in_gap(length: int) -> int:
     active segment to count. It is recovered instead from how much longer the
     silence ran than a plain character boundary.
 
-    The rounding gives generous slack: any gap in [3, 17] yields zero spaces and
+    The rounding gives generous slack: any gap in [0, 17] yields zero spaces and
     any in [18, 32] yields one, and the clamp means a short gap can never
     fabricate a space.
     """
     return max(0, round((length - C.BOUNDARY_GAP_FRAMES) / C.FRAMES_PER_CHAR))
+
+
+def _tolerant_peaks(frames: np.ndarray) -> np.ndarray:
+    """Peak modal magnitude per frame, treating an unreadable frame as quiet.
+
+    `frame_peaks` transforms the whole stack in one call, which is what makes
+    decoding cheap, but it also means a single unusable profile takes the batch
+    down with it: `mode_band` rejects a non-positive mean radius, and one
+    all-zero row is enough. A failed contour is exactly what an image decoder
+    produces, and one bad ring out of a thousand must not cost the message.
+
+    So: try the batch, and only on failure fall back to a per-frame pass where
+    an unreadable profile scores 0.0 and segments away into a gap. If every
+    frame fails the input is malformed as a whole -- too few angular samples to
+    resolve MAX_MODE, say -- and the original error is re-raised rather than
+    silently returning an empty decode.
+    """
+    try:
+        return frame_peaks(frames)
+    except ValueError:
+        pass
+
+    peaks = np.zeros(len(frames), dtype=float)
+    failures: list[ValueError] = []
+    for index, frame in enumerate(frames):
+        try:
+            peaks[index] = frame_peaks(frame)
+        except ValueError as error:
+            failures.append(error)
+    if len(failures) == len(frames):
+        raise failures[0]
+    return peaks
 
 
 def decode(frames: np.ndarray) -> str:
@@ -111,14 +150,36 @@ def decode(frames: np.ndarray) -> str:
         character costs one character.
 
     Raises:
-        ValueError: If fewer than two sentinel markers are found.
+        ValueError: If `frames` is not two-dimensional, if no frame can be
+            transformed at all, or if fewer than two sentinel markers are found.
+
+    Note:
+        The two axes are not equally forgiving, and the asymmetry is the main
+        trap when wiring contour extraction into this function.
+
+        The angular axis is fully invariant. Detection divides by mean radius
+        and by bin count, so profiles sampled at 32, 64, 128, 256, 512 or 1024
+        bins all decode identically, as do profiles at any positive scale or any
+        rotation. Callers may resample it freely.
+
+        The time axis is rigid. `_spaces_in_gap` measures silence in frames and
+        compares it against FRAMES_PER_CHAR and BOUNDARY_GAP_FRAMES, so frames
+        must arrive at the cadence the encoder emitted them. A timebase mismatch
+        corrupts the output silently instead of failing: on encode("A B"),
+        feeding frames at 2x rate decodes as ' A   B ', 3x as
+        '� AA    BB �', and 0.5x as 'AB' with the space lost entirely.
     """
     frames = np.asarray(frames, dtype=float)
+    if frames.ndim != 2:
+        raise ValueError(
+            f"Expected frames of shape (n_frames, n_bins); got {frames.ndim}-D "
+            f"array of shape {frames.shape}"
+        )
 
     # One FFT pass over the whole message. The peaks feed both the active/quiet
     # decision and the per-segment argmax, so nothing is transformed twice.
-    peaks = frame_peaks(frames)
-    mask = close_short_gaps(peaks >= C.QUIET_THRESHOLD)
+    peaks = _tolerant_peaks(frames)
+    mask = close_short_gaps(active_mask(peaks))
 
     tokens: list[tuple[str, object]] = []
     for is_active, start, stop in runs_of(mask):
@@ -126,12 +187,21 @@ def decode(frames: np.ndarray) -> str:
             tokens.append(('gap', stop - start))
             continue
         strongest = start + int(np.argmax(peaks[start:stop]))
-        chord, confidence = detect_chord(frames[strongest])
+        try:
+            chord, confidence = detect_chord(frames[strongest])
+        except ValueError:
+            chord, confidence = None, 0.0
         tokens.append(('chord', (chord, confidence)))
 
+    # Sentinels are held to the same standard _symbol_for applies to every other
+    # chord. Without the confidence clause a noise frame that happens to rank
+    # modes 2 and 12 highest would anchor the message: 54 of 3000 heavy-noise
+    # frames reported (2, 12) at confidence 1.0 to 1.2.
     sentinels = [
         index for index, (kind, value) in enumerate(tokens)
-        if kind == 'chord' and value[0] == C.SENTINEL_CHORD
+        if kind == 'chord'
+        and value[0] == C.SENTINEL_CHORD
+        and value[1] >= C.MIN_CONFIDENCE
     ]
     if len(sentinels) < 2:
         raise ValueError("Message is missing its sentinel markers")

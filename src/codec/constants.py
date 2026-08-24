@@ -88,9 +88,23 @@ MIN_CLOSABLE_GAP = 3
 BOUNDARY_GAP_FRAMES = 10
 
 # Below this confidence, a segment is reported undecodable rather than guessed.
-# This separates two measured populations. A degenerate single-mode ring scores
-# 1.09 to 1.46, because detect_chord always returns two distinct modes and the
-# second is float rounding noise. A genuine chord scores ~4e15 clean and no
-# lower than 11.1 under sigma=0.02 noise, already past the point where
-# confidence degrades faster than accuracy does. 5.0 sits between them.
+# This is the one threshold separating two measured populations, so the
+# measurements live here and nothing else restates them.
+#
+# Degenerate single-mode rings, over all 11 modes MIN_MODE..MAX_MODE:
+#   at the argmax frame of the clip .... 1.12 to 1.93
+#   over every above-threshold frame ... 1.01 to 4.94
+# They score low because detect_chord always returns two distinct modes, so the
+# weaker one is float rounding noise rather than a real peak.
+#
+# Genuine chords, over all 42 characters plus the sentinel with 200 additive
+# noise draws each (8,600 trials) at sigma=0.02: minimum confidence 9.82, chord
+# accuracy 100%. sigma=0.02 is already past the point where confidence degrades
+# faster than accuracy does, so 9.82 is a pessimistic floor. Clean input scores
+# ~4e15.
+#
+# 5.0 sits between 4.94 and 9.82. Note how narrow the lower side is: the gate
+# clears the worst degenerate frame by only 1.2%. That margin holds only because
+# decode inspects the argmax frame, where the degenerate population tops out at
+# 1.93 instead. Frame selection is load-bearing here, not an optimization.
 MIN_CONFIDENCE = 5.0

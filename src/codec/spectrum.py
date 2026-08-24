@@ -90,19 +90,22 @@ def frame_peaks(frames: np.ndarray) -> np.ndarray:
     return mode_band(frames).max(axis=-1)
 
 
-def active_mask(frames: np.ndarray) -> np.ndarray:
+def active_mask(peaks: np.ndarray) -> np.ndarray:
     """Flag which frames carry enough modulation to decode.
 
-    Shares `frame_peaks` with `detect_chord`, so segmentation can never
-    classify a frame active that detection then refuses.
+    Takes peaks rather than profiles so that a caller which already has them --
+    `decode` computes them once and reuses them to pick each segment's argmax
+    frame -- applies the threshold through this function instead of inlining it.
+    Segmentation and detection then cannot drift apart, which they would if the
+    production path spelled the comparison out for itself.
 
     Args:
-        frames: A stack of radius profiles.
+        peaks: Peak modal magnitude per frame, from `frame_peaks`.
 
     Returns:
         np.ndarray: Boolean array, one flag per frame.
     """
-    return frame_peaks(frames) >= C.QUIET_THRESHOLD
+    return peaks >= C.QUIET_THRESHOLD
 
 
 def runs_of(mask: np.ndarray) -> list[tuple[bool, int, int]]:
