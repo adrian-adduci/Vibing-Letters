@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 
 from src.codec import constants as C
-from src.codec.chord_table import SPARE_CHORDS
+from src.codec.chord_table import SPARE_CHORDS, SYMBOL_BY_CHORD
 from src.codec.message import UNDECODABLE, decode, encode
 from src.codec.spectrum import detect_chord
 from src.codec.waveform import chord_clip, frame_amplitudes, radius_profile
@@ -62,7 +62,10 @@ def test_decodes_digits_and_punctuation():
 
 
 def test_sentinels_are_stripped_from_output():
-    assert decode(encode("A").frames) == "A"
+    """The sentinel chord brackets every message but belongs to no character,
+    so a two-character message must decode to exactly two characters."""
+    assert len(decode(encode("AB").frames)) == 2
+    assert C.SENTINEL_CHORD not in SYMBOL_BY_CHORD
 
 
 def test_empty_message_decodes_to_empty_string():

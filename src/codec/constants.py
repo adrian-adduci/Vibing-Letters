@@ -89,7 +89,7 @@ BOUNDARY_GAP_FRAMES = 10
 
 # Below this confidence, a segment is reported undecodable rather than guessed.
 # This separates two measured populations. A degenerate single-mode ring scores
-# 1.35 to 2.28, because detect_chord always returns two distinct modes and the
+# 1.09 to 1.46, because detect_chord always returns two distinct modes and the
 # second is float rounding noise. A genuine chord scores ~4e15 clean and no
 # lower than 11.1 under sigma=0.02 noise, already past the point where
 # confidence degrades faster than accuracy does. 5.0 sits between them.

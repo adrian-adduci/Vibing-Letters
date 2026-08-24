@@ -74,7 +74,7 @@ def _symbol_for(chord: tuple[int, int] | None, confidence: float) -> str:
     back as its real peak paired with whatever float-rounding bin ranked second:
     a ring at mode 5 reports (4, 5), which is a perfectly valid entry meaning
     'H'. The lookup cannot see anything wrong. Only confidence separates them --
-    such rings score 1.35 to 2.28, while genuine chords score no lower than 11.1
+    such rings score 1.09 to 1.46, while genuine chords score no lower than 11.1
     even under heavy noise.
 
     The encoder never emits either case, so the round-trip property is
