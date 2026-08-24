@@ -76,3 +76,43 @@ def detect_chord(profile: np.ndarray) -> tuple[tuple[int, int] | None, float]:
 
     chord = (min(strongest, second) + C.MIN_MODE, max(strongest, second) + C.MIN_MODE)
     return chord, confidence
+
+
+def active_mask(frames: np.ndarray) -> np.ndarray:
+    """Flag which frames carry enough modulation to decode.
+
+    `mode_band` transforms along the last axis, so an entire clip goes through
+    one vectorized call rather than a Python loop running a 512-point rFFT per
+    frame. This predicate must stay identical to the one inside `detect_chord`,
+    or segmentation will classify a frame active that detection then refuses.
+    """
+    return mode_band(frames).max(axis=-1) >= C.QUIET_THRESHOLD
+
+
+def runs_of(mask: np.ndarray) -> list[tuple[bool, int, int]]:
+    """Split a boolean mask into (value, start, stop) runs."""
+    runs: list[tuple[bool, int, int]] = []
+    start = 0
+    while start < len(mask):
+        stop = start
+        while stop < len(mask) and mask[stop] == mask[start]:
+            stop += 1
+        runs.append((bool(mask[start]), start, stop))
+        start = stop
+    return runs
+
+
+def close_short_gaps(mask: np.ndarray, min_gap: int = C.MIN_CLOSABLE_GAP) -> np.ndarray:
+    """Fill quiet runs too short to be character boundaries.
+
+    The standing wave passes through zero mid-character, leaving a one-frame
+    quiet patch that would otherwise split one character into two segments and
+    decode it twice. Real boundaries are an order of magnitude longer, so the
+    two cases separate cleanly on length.
+    """
+    closed = mask.copy()
+    for is_active, start, stop in runs_of(mask):
+        interior = start > 0 and stop < len(mask)
+        if not is_active and interior and (stop - start) < min_gap:
+            closed[start:stop] = True
+    return closed
