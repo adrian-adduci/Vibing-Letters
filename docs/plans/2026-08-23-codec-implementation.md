@@ -83,6 +83,13 @@ All live in `src/codec/constants.py`. Every value below was verified by prototyp
 | `QUIET_THRESHOLD` | 0.01 | Active if strongest mode exceeds 1% radial modulation |
 | `MIN_CLOSABLE_GAP` | 3 | Quiet runs shorter than this are closed |
 | `BOUNDARY_GAP_FRAMES` | 10 | Quiet-run length at a plain character boundary |
+| `MIN_CONFIDENCE` | 5.0 | Below this, a segment is reported undecodable rather than guessed |
+
+`MIN_CONFIDENCE` separates two measured populations. A degenerate single-mode
+ring scores 1.35–2.28, because its second "peak" is float rounding noise. A
+genuine chord scores ~4e15 clean and no lower than 11.1 under σ=0.02 noise,
+which is already past the point where confidence degrades faster than accuracy.
+5.0 sits between them with roughly 2× margin on each side.
 
 ---
 
@@ -1109,7 +1116,35 @@ def test_sentinels_are_stripped_from_output():
 def test_empty_message_decodes_to_empty_string():
     """Two adjacent sentinels with nothing between them."""
     assert decode(encode("").frames) == ""
+
+
+def test_degenerate_ring_is_not_decoded_as_a_letter():
+    """A single-mode ring is the loudest shape the format can produce, yet
+    detect_chord reports it as a valid-looking pair - mode 5 comes back as
+    (4, 5), which means 'H'. Only the confidence gate catches it.
+    """
+    from src.codec.message import UNDECODABLE
+    frames = np.concatenate([
+        chord_clip(C.SENTINEL_CHORD),
+        np.stack([radius_profile((5, 5), a) for a in frame_amplitudes() * C.AMPLITUDE]),
+        chord_clip(C.SENTINEL_CHORD),
+    ])
+    assert decode(frames) == UNDECODABLE
+
+
+def test_spare_chords_are_not_decoded_as_letters():
+    """The twelve spare pairs belong to no character."""
+    from src.codec.chord_table import SPARE_CHORDS
+    from src.codec.message import UNDECODABLE
+    frames = np.concatenate([
+        chord_clip(C.SENTINEL_CHORD),
+        chord_clip(SPARE_CHORDS[0]),
+        chord_clip(C.SENTINEL_CHORD),
+    ])
+    assert decode(frames) == UNDECODABLE
 ```
+
+Add `chord_clip`, `radius_profile` and `frame_amplitudes` to the top import block.
 
 **Step 2: Run test to verify it fails**
 
@@ -1127,6 +1162,31 @@ from .spectrum import active_mask, close_short_gaps, detect_chord, mode_band, ru
 # character owns. Using the Unicode replacement character keeps decode total: a
 # damaged ring costs one character rather than the whole message.
 UNDECODABLE = '�'
+
+
+def _symbol_for(chord: tuple[int, int] | None, confidence: float) -> str:
+    """Map a detected chord to its character, or mark it undecodable.
+
+    Two distinct failures land here, and neither can be caught by a table
+    lookup alone.
+
+    A chord no character owns — one of the twelve spare pairs — fails the
+    lookup outright.
+
+    A *degenerate* ring, excited in a single mode, is the subtler case.
+    `detect_chord` always returns two distinct modes, so a one-mode ring comes
+    back as its real peak paired with whatever float-rounding bin ranked second:
+    a ring at mode 5 reports (4, 5), which is a perfectly valid entry meaning
+    'H'. The lookup cannot see anything wrong. Only confidence separates them —
+    such rings score 1.35 to 2.28, while genuine chords score no lower than 11.1
+    even under heavy noise.
+
+    The encoder never emits either case, so the round-trip property is
+    unaffected; both arise only from corrupted or externally supplied rings.
+    """
+    if chord is None or confidence < C.MIN_CONFIDENCE:
+        return UNDECODABLE
+    return SYMBOL_BY_CHORD.get(chord, UNDECODABLE)
 
 
 def _spaces_in_gap(length: int) -> int:
@@ -1161,12 +1221,12 @@ def decode(frames: np.ndarray) -> str:
             continue
         segment = frames[start:stop]
         strongest = int(np.argmax(mode_band(segment).max(axis=-1)))
-        chord, _ = detect_chord(segment[strongest])
-        tokens.append(('chord', chord))
+        chord, confidence = detect_chord(segment[strongest])
+        tokens.append(('chord', (chord, confidence)))
 
     sentinels = [
         index for index, (kind, value) in enumerate(tokens)
-        if kind == 'chord' and value == C.SENTINEL_CHORD
+        if kind == 'chord' and value[0] == C.SENTINEL_CHORD
     ]
     if len(sentinels) < 2:
         raise ValueError("Message is missing its sentinel markers")
@@ -1176,13 +1236,7 @@ def decode(frames: np.ndarray) -> str:
     decoded = []
     for kind, value in body:
         if kind == 'chord':
-            # A segment can be loud enough to segment yet decode to a chord no
-            # character owns: a degenerate single-mode ring, one of the twelve
-            # spare pairs, or noise. Emit the replacement character rather than
-            # raising, so one corrupted ring costs one character instead of the
-            # whole message. The encoder never produces these, so the round-trip
-            # property is unaffected.
-            decoded.append(SYMBOL_BY_CHORD.get(value, UNDECODABLE))
+            decoded.append(_symbol_for(*value))
         else:
             decoded.append(SPACE * _spaces_in_gap(value))
     return ''.join(decoded)
