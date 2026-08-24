@@ -54,6 +54,14 @@ spaces = round((run_length - BOUNDARY_GAP_FRAMES) / FRAMES_PER_CHAR)
 Measured: a plain character boundary is 10 frames; each space adds 15. Runs of 10, 25,
 40 map to 0, 1, 2 spaces — cleanly separable.
 
+The rounding gives more slack than it first appears. Because the expression rounds to
+the nearest multiple of `FRAMES_PER_CHAR`, *any* gap in [3, 17] yields zero spaces and
+any gap in [18, 32] yields one, and the `max(0, ...)` clamp means a short gap can never
+fabricate a space. Sweeping `AMPLITUDE` from 0.03 to 0.30 moves the measured gap between
+14 and 7 without ever changing the recovered text. So `BOUNDARY_GAP_FRAMES` is a nominal
+centre with roughly ±7 frames of tolerance, not a cliff edge — which is why the exact
+guard test is a tripwire on drift rather than a correctness assertion.
+
 > **Note for later:** this is the least robust part of the codec, because it depends on
 > frame counts surviving intact rather than on the image content. Twelve spare chords
 > exist; assigning one to space would make it a segment like any other and remove the
@@ -1156,7 +1164,7 @@ Expected: FAIL — `ImportError: cannot import name 'decode'`
 ```python
 # append to src/codec/message.py
 from .chord_table import SYMBOL_BY_CHORD
-from .spectrum import active_mask, close_short_gaps, detect_chord, mode_band, runs_of
+from .spectrum import close_short_gaps, detect_chord, frame_peaks, runs_of
 
 # Stands in for a ring that was loud enough to segment but decoded to a chord no
 # character owns. Using the Unicode replacement character keeps decode total: a
@@ -1212,16 +1220,19 @@ def decode(frames: np.ndarray) -> str:
         ValueError: If no sentinel pair is found.
     """
     frames = np.asarray(frames, dtype=float)
-    mask = close_short_gaps(active_mask(frames))
+
+    # One FFT pass over the whole message. The peaks feed both the active/quiet
+    # decision and the per-segment argmax, so nothing is transformed twice.
+    peaks = frame_peaks(frames)
+    mask = close_short_gaps(peaks >= C.QUIET_THRESHOLD)
 
     tokens: list[tuple[str, object]] = []
     for is_active, start, stop in runs_of(mask):
         if not is_active:
             tokens.append(('gap', stop - start))
             continue
-        segment = frames[start:stop]
-        strongest = int(np.argmax(mode_band(segment).max(axis=-1)))
-        chord, confidence = detect_chord(segment[strongest])
+        strongest = start + int(np.argmax(peaks[start:stop]))
+        chord, confidence = detect_chord(frames[strongest])
         tokens.append(('chord', (chord, confidence)))
 
     sentinels = [
@@ -1390,7 +1401,7 @@ def _high_frequency_noise(n_bins: int, amplitude: float, seed: int) -> np.ndarra
 
 def test_band_limited_noise_does_not_break_decoding():
     """Perlin-style texture is safe if it stays out of the decoder's band."""
-    frames, _ = encode(SENTENCE)
+    frames = encode(SENTENCE).frames
     noisy = frames + _high_frequency_noise(C.N_BINS, 0.02, seed=1)
     assert decode(noisy) == SENTENCE
 
@@ -1413,14 +1424,29 @@ def test_in_band_noise_destroys_confidence():
 
 @pytest.mark.parametrize("scale", [0.25, 1.0, 7.5, 100.0])
 def test_decoding_survives_rescaling(scale):
-    frames, _ = encode(SENTENCE)
+    frames = encode(SENTENCE).frames
     assert decode(frames * scale) == SENTENCE
 
 
 def test_decoding_survives_rotation():
-    frames, _ = encode(SENTENCE)
-    rotated = np.roll(frames, C.N_BINS // 5, axis=1)
+    rotated = np.roll(encode(SENTENCE).frames, C.N_BINS // 5, axis=1)
     assert decode(rotated) == SENTENCE
+
+
+def test_in_band_noise_does_not_fabricate_a_character_from_a_space():
+    """The hazard the band-limited test above misses entirely.
+
+    A space is a still circle carrying no signal, so it has no margin of its
+    own: any in-band energy can push it over QUIET_THRESHOLD and invent a
+    character mid-message. `active_mask` is the only thing between that and a
+    corrupted decode, which makes this the one place the quiet threshold is
+    load-bearing rather than merely convenient.
+    """
+    rng = np.random.default_rng(3)
+    frames = encode("A B").frames.copy()
+    space = slice(2 * C.FRAMES_PER_CHAR, 3 * C.FRAMES_PER_CHAR)
+    frames[space] += rng.normal(0.0, 0.002, frames[space].shape)
+    assert decode(frames) == "A B"
 
 
 def test_confidence_survives_realistic_noise():
