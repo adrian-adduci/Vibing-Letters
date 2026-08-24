@@ -231,6 +231,40 @@ Supporting suites:
 - **Robustness** — decode survives resize, rotation, re-compression, moderate crop.
 - **Metadata** — URL written, read back from the saved file, asserted, per format.
 
+### Measured tolerances
+
+Numbers the asset pipeline should design against. Measured against the built
+codec, not estimated.
+
+| Distortion | Tolerance |
+|---|---|
+| Additive noise on the radius profile | **σ ≤ 0.03.** First failure 0.032; ~50% at 0.045; total loss at 0.060 |
+| Out-of-band noise (modes above 12) | **Effectively unbounded** — correct decode at amplitude 1e12 |
+| Angular resampling | **Fully invariant** — 32 to 1024 bins decode identically |
+| Rescaling | **Fully invariant** — verified 0.25× to 100× |
+| Rotation | **Fully invariant** — magnitude spectrum discards phase |
+| Frame cadence | **Rigid** — no tolerance at all |
+
+Three consequences worth carrying into asset work.
+
+**Perlin texture is unconstrained in strength.** Section 6 below assumed
+band-limited noise was merely *safe*. Measurement says the band limit is the
+entire budget: out-of-band texture at roughly 1e13× the chord amplitude still
+decodes correctly. Push the aesthetics as hard as the look wants — only the
+*frequency* of the texture matters, never its depth.
+
+**Failures announce themselves.** Below σ=0.045 every failure surfaces as the
+replacement character rather than a wrong letter, and the dominant mode (76%) is
+*fabrication* — noise lifting a single quiet frame over the threshold, which
+then becomes its own segment. Silent corruption begins only at σ=0.045, and even
+there it is a dropped character rather than a substituted one.
+
+**The angular axis is free; the time axis is not.** Contour extraction may
+sample angles at any resolution, but frames must arrive at the encoder's
+cadence. At 2× frame rate `"A B"` decodes as `" A   B "`; at 0.5× the space
+vanishes. This is the largest integration trap for the image decoder, and it
+fails silently rather than loudly.
+
 ---
 
 ## 6. Existing code disposition
