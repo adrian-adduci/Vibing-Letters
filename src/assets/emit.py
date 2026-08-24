@@ -52,6 +52,19 @@ FRAME_MS = 33
 WEBP_SIZE = 512
 GIF_SIZE = 256
 
+# WebP quality. Lossless is the wrong default here and the measurement is not
+# close: on real generated artwork one character came out at 3353 KB lossless
+# against 172 KB at quality 90, which is 39 MB versus 2.0 MB for a twelve
+# character message. The design budgets 2-3 MB, so lossless misses it by more
+# than an order of magnitude.
+#
+# The compression is free in the only currency that matters. Decode confidence
+# was 34.5 either way -- identical, not merely adequate -- because the contour
+# is a high-contrast edge and what WebP discards is the smooth glow around it.
+# Quality 30 still passed at 35.1, so 90 is chosen to preserve the artwork
+# rather than to protect the signal, which needs no protecting.
+WEBP_QUALITY = 90
+
 _DC = "http://purl.org/dc/elements/1.1/"
 _RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 
@@ -151,8 +164,17 @@ def write_webp(
     url: str = DECODER_URL,
     size: int = WEBP_SIZE,
     frame_ms: int = FRAME_MS,
+    quality: int = WEBP_QUALITY,
 ) -> Path:
     """Write the canonical animated WebP, link included and confirmed.
+
+    Args:
+        frames: Frames stacked on a leading axis.
+        path: Destination file.
+        url: Decoder link to embed.
+        size: Output edge in pixels.
+        frame_ms: Per-frame delay.
+        quality: WebP quality, 0-100. See WEBP_QUALITY for why this is lossy.
 
     Raises:
         OSError: If the link did not survive the write.
@@ -161,7 +183,7 @@ def write_webp(
     images = _as_pil(frames, size)
     images[0].save(
         destination, format='WEBP', save_all=True, append_images=images[1:],
-        duration=frame_ms, loop=0, lossless=True, xmp=xmp_packet(url),
+        duration=frame_ms, loop=0, quality=quality, xmp=xmp_packet(url),
     )
     _verify_link(destination, url)
     return destination

@@ -5,6 +5,7 @@ to disk, compressed, quantized and read back by an ordinary image library still
 decodes to the chord it started as. Everything before this stage worked on
 arrays that never left memory.
 """
+import cv2
 import numpy as np
 import pytest
 from PIL import Image
@@ -160,6 +161,51 @@ def compose(text: str, size: int = 256) -> np.ndarray:
 
 def read_message(path) -> str:
     return decode(np.stack([ring.radius_profile(f) for f in emit.read_clip(path)]))
+
+
+@pytest.fixture(scope="module")
+def glowing():
+    """A clip with the smooth gradients real artwork has.
+
+    The bare contour render is flat black on white and compresses unlike
+    anything that will actually ship, so a size claim measured on it would mean
+    nothing. Blurring gives the glow that dominates the file.
+    """
+    still = contour.render_control_image((3, 4), size=512)
+    glow = cv2.GaussianBlur(255 - still, (41, 41), 0)
+    return warp.envelope_clip(np.maximum(255 - still, glow))
+
+
+class TestSize:
+    """Lossless WebP misses the design's size budget by an order of magnitude,
+    and the compression that fixes it costs nothing the decoder can measure."""
+
+    def test_the_default_is_lossy(self, glowing, tmp_path):
+        """The bound is deliberately weaker than the real effect.
+
+        A synthetic blur understates it badly: 2.9x here against 19x measured
+        on actual generated artwork, because what defeats lossless compression
+        is the fine grain a diffusion model produces, and a Gaussian blur has
+        none. So this asserts the direction with room to spare rather than
+        pinning a number that only holds for real assets. The 19x figure is
+        recorded where it was measured, on WEBP_QUALITY.
+        """
+        lossy = emit.write_webp(glowing, tmp_path / "lossy.webp")
+        images = emit._as_pil(glowing, emit.WEBP_SIZE)
+        lossless = tmp_path / "lossless.webp"
+        images[0].save(lossless, format='WEBP', save_all=True,
+                       append_images=images[1:], duration=emit.FRAME_MS,
+                       loop=0, lossless=True)
+        assert lossy.stat().st_size * 2 < lossless.stat().st_size
+
+    def test_compression_does_not_cost_confidence(self, glowing, tmp_path):
+        """Measured on real generated artwork, lossless and quality 90 both
+        decoded at confidence 34.5 -- identical, not merely adequate. What WebP
+        discards is the smooth glow; the contour is a high-contrast edge."""
+        loud = emit.write_webp(glowing, tmp_path / "q90.webp")
+        rough = emit.write_webp(glowing, tmp_path / "q30.webp", quality=30)
+        assert verify.accept(emit.read_clip(loud), (3, 4)).accepted
+        assert verify.accept(emit.read_clip(rough), (3, 4)).accepted
 
 
 class TestMessages:
