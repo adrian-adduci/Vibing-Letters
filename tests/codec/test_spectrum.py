@@ -8,6 +8,7 @@ from src.codec.spectrum import (
     active_mask,
     close_short_gaps,
     detect_chord,
+    frame_peaks,
     mode_band,
     runs_of,
 )
@@ -103,10 +104,17 @@ def test_runs_cover_the_whole_sequence():
 
 
 def test_boundary_gap_matches_the_constant():
-    """BOUNDARY_GAP_FRAMES is a measured consequence of seven other constants,
-    not an independent value. The round-trip test cannot catch it drifting:
-    encoder and decoder read the same constants and desynchronize in lockstep,
-    staying green while real messages decode wrong. So measure it directly.
+    """Tripwire on a measured value, not a correctness assertion.
+
+    BOUNDARY_GAP_FRAMES is a consequence of seven other constants, so it can
+    drift silently: the round-trip test cannot catch it, because encoder and
+    decoder read the same constants and desynchronize in lockstep. A failure
+    here means re-measure and update the constant -- decoding may well still be
+    correct, since the space arithmetic tolerates roughly +/- 7 frames. The test
+    below is the one that fails only when decoding actually breaks.
+
+    The gap is chord-independent: radius_profile splits amplitude as a/2 per
+    mode regardless of which modes, so measuring one pair is sufficient.
     """
     clip = np.concatenate([chord_clip((3, 7)), chord_clip((4, 9))])
     mask = close_short_gaps(active_mask(clip))
@@ -116,3 +124,30 @@ def test_boundary_gap_matches_the_constant():
         if not is_active and start > 0 and stop < len(mask)
     ]
     assert interior_gaps == [C.BOUNDARY_GAP_FRAMES]
+
+
+def test_boundary_gap_rounds_to_the_right_number_of_spaces():
+    """Task 10 needs the gap to round to zero spaces, and one further clip's
+    worth of silence to round to exactly one. That is the real invariant, and
+    it survives amplitude tuning that the exact-match tripwire above would flag.
+    """
+    clip = np.concatenate([chord_clip((3, 7)), chord_clip((4, 9))])
+    mask = close_short_gaps(active_mask(clip))
+    measured = next(
+        stop - start
+        for is_active, start, stop in runs_of(mask)
+        if not is_active and start > 0 and stop < len(mask)
+    )
+    assert round((measured - C.BOUNDARY_GAP_FRAMES) / C.FRAMES_PER_CHAR) == 0
+    assert round(
+        (measured + C.FRAMES_PER_CHAR - C.BOUNDARY_GAP_FRAMES) / C.FRAMES_PER_CHAR
+    ) == 1
+
+
+def test_frame_peaks_matches_the_detection_threshold():
+    """The value active_mask thresholds must be the same one detect_chord does."""
+    clip = chord_clip((3, 7))
+    peaks = frame_peaks(clip)
+    assert peaks.shape == (C.FRAMES_PER_CHAR,)
+    for frame, peak in zip(clip, peaks):
+        assert (detect_chord(frame)[0] is not None) == (peak >= C.QUIET_THRESHOLD)

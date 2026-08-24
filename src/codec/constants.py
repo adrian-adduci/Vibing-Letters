@@ -41,6 +41,21 @@ DECAY_POWER = 2.0
 # Detection normalizes by mean radius and by bin count, so radius profiles at
 # any positive scale or any bin count decode identically. These values pick a
 # convenient rendering, not a format.
+#
+# AMPLITUDE is the exception to "change freely". Decoding is invariant to the
+# *scale* of a profile, but AMPLITUDE is not a scale: it sets how far a pluck
+# rises above QUIET_THRESHOLD, and therefore how many frames at the head and
+# tail of a character fall below it. Raising it lengthens the active run and
+# shortens the quiet one, which shifts BOUNDARY_GAP_FRAMES -- measured at 11
+# frames for AMPLITUDE = 0.06, 10 at the current 0.12, and 7 at 0.24, ranging
+# from 14 down to 7 across the usable band. Space recovery rounds the measured
+# gap to the nearest multiple of FRAMES_PER_CHAR and so absorbs roughly +/- 7
+# frames of drift; every value in that band still recovers zero spaces at a
+# plain boundary. A change here is therefore safe for decoding but leaves
+# BOUNDARY_GAP_FRAMES stale until it is re-measured.
+#
+# Below roughly 0.04 no frame clears QUIET_THRESHOLD at all and characters stop
+# being detected entirely, which is a floor on AMPLITUDE rather than a drift.
 
 N_BINS = 512
 

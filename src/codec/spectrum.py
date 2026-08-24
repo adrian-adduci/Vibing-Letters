@@ -67,7 +67,7 @@ def detect_chord(profile: np.ndarray) -> tuple[tuple[int, int] | None, float]:
     ranked = np.argsort(band, kind='stable')[::-1]
     strongest, second = int(ranked[0]), int(ranked[1])
 
-    if band[strongest] < C.QUIET_THRESHOLD:
+    if band.max() < C.QUIET_THRESHOLD:
         return None, 0.0
 
     remainder = np.delete(band, [strongest, second])
@@ -78,15 +78,31 @@ def detect_chord(profile: np.ndarray) -> tuple[tuple[int, int] | None, float]:
     return chord, confidence
 
 
+def frame_peaks(frames: np.ndarray) -> np.ndarray:
+    """Strongest modal magnitude in each frame, in modulation units.
+
+    Args:
+        frames: A single radius profile, or a stack of them.
+
+    Returns:
+        np.ndarray: Peak magnitude per frame, one fewer axis than the input.
+    """
+    return mode_band(frames).max(axis=-1)
+
+
 def active_mask(frames: np.ndarray) -> np.ndarray:
     """Flag which frames carry enough modulation to decode.
 
-    `mode_band` transforms along the last axis, so an entire clip goes through
-    one vectorized call rather than a Python loop running a 512-point rFFT per
-    frame. This predicate must stay identical to the one inside `detect_chord`,
-    or segmentation will classify a frame active that detection then refuses.
+    Shares `frame_peaks` with `detect_chord`, so segmentation can never
+    classify a frame active that detection then refuses.
+
+    Args:
+        frames: A stack of radius profiles.
+
+    Returns:
+        np.ndarray: Boolean array, one flag per frame.
     """
-    return mode_band(frames).max(axis=-1) >= C.QUIET_THRESHOLD
+    return frame_peaks(frames) >= C.QUIET_THRESHOLD
 
 
 def runs_of(mask: np.ndarray) -> list[tuple[bool, int, int]]:
