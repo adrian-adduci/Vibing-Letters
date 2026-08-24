@@ -2,7 +2,13 @@
 import numpy as np
 
 from src.codec import constants as C
-from src.codec.waveform import envelope, frame_amplitudes, radius_profile
+from src.codec.waveform import (
+    chord_clip,
+    envelope,
+    frame_amplitudes,
+    quiet_clip,
+    radius_profile,
+)
 
 
 def test_profile_has_one_value_per_bin():
@@ -67,3 +73,24 @@ def test_frame_amplitudes_change_sign():
     """The standing wave oscillates; lobes swap in and out."""
     amps = frame_amplitudes()
     assert amps.min() < 0 < amps.max()
+
+
+def test_chord_clip_shape():
+    assert chord_clip((3, 7)).shape == (C.FRAMES_PER_CHAR, C.N_BINS)
+
+
+def test_chord_clip_opens_and_closes_on_a_circle():
+    """Required for seamless looping and splicing."""
+    clip = chord_clip((3, 7))
+    assert np.allclose(clip[0], C.REST_RADIUS)
+    assert np.allclose(clip[-1], C.REST_RADIUS)
+
+
+def test_chord_clip_actually_deforms_in_between():
+    clip = chord_clip((3, 7))
+    assert clip[1:-1].std() > 0.0
+
+
+def test_quiet_clip_never_deforms():
+    """Space is the absence of excitation."""
+    assert np.allclose(quiet_clip(), C.REST_RADIUS)

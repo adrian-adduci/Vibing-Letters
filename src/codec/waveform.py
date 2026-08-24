@@ -63,3 +63,18 @@ def frame_amplitudes(
     t = np.linspace(0.0, 1.0, n_active)
     active = envelope(n_active) * np.cos(2.0 * np.pi * C.OSCILLATIONS * t)
     return np.concatenate([active, np.zeros(n_gap)])
+
+
+def chord_clip(chord: tuple[int, int], n_bins: int = C.N_BINS) -> np.ndarray:
+    """Build every frame of one excited character clip.
+
+    Returns:
+        np.ndarray: Radii of shape (FRAMES_PER_CHAR, n_bins).
+    """
+    amplitudes = frame_amplitudes() * C.AMPLITUDE
+    return np.stack([radius_profile(chord, a, n_bins) for a in amplitudes])
+
+
+def quiet_clip(n_bins: int = C.N_BINS) -> np.ndarray:
+    """Build an unexcited clip: a still circle, which encodes a space."""
+    return np.full((C.FRAMES_PER_CHAR, n_bins), C.REST_RADIUS)
