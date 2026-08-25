@@ -111,6 +111,60 @@ class TestRefusing:
         assert "could not be read" in result.reasons[0]
 
 
+class TestRecovery:
+    """Published clips are self-sufficient: the set can be rebuilt from them.
+
+    A clip's loudest frame is its still, because warping to the amplitude a
+    still already has is the identity. That matters when the candidates are
+    gone -- as they were once, deleted with a worktree -- and it means changing
+    the decoder URL never requires paying for generation again.
+    """
+
+    @pytest.fixture
+    def published(self, tmp_path):
+        stills = tmp_path / "stills"
+        stills.mkdir()
+        entries = []
+        for symbol in "ABC":
+            chord = CHORD_BY_SYMBOL[symbol]
+            path = stills / f"{symbol}.png"
+            cv2.imwrite(str(path), contour.render_control_image(chord, size=512))
+            entries.append((symbol, chord, path))
+        out = tmp_path / "clips"
+        assert all(r.ok for r in publish.publish_all(entries, out))
+        return out
+
+    def test_stills_come_back_out_of_the_clips(self, published, tmp_path):
+        recovered = publish.stills_from_clips(published, tmp_path / "recovered")
+        assert [name for name, _, _ in recovered] == ["A", "B", "C"]
+        assert all(path.is_file() for _, _, path in recovered)
+
+    def test_recovered_stills_republish_and_still_verify(self, published, tmp_path):
+        """The claim in full: no candidates, no network, same result."""
+        recovered = publish.stills_from_clips(published, tmp_path / "recovered")
+        again = publish.publish_all(recovered, tmp_path / "again",
+                                    url="https://example.org/new")
+        assert all(r.ok for r in again)
+        assert emit.read_link(again[0].path) == "https://example.org/new"
+
+    def test_a_second_round_trip_still_verifies(self, published, tmp_path):
+        """Each recovery costs a compression generation, so it is worth knowing
+        the format does not fall over on the very next one."""
+        first = publish.stills_from_clips(published, tmp_path / "r1")
+        once = tmp_path / "c1"
+        assert all(r.ok for r in publish.publish_all(first, once))
+        second = publish.stills_from_clips(once, tmp_path / "r2")
+        assert all(r.ok for r in publish.publish_all(second, tmp_path / "c2"))
+
+    def test_clips_without_a_manifest_are_refused(self, published, tmp_path):
+        """The pixels do not say which chord they carry. Guessing would mean
+        gating each clip against whatever it happens to decode as, which is not
+        a check at all."""
+        (published / "assets.json").unlink()
+        with pytest.raises(FileNotFoundError, match="which chord"):
+            publish.stills_from_clips(published, tmp_path / "recovered")
+
+
 class TestFallingThrough:
     """Selecting on the still and publishing the clip is not the same thing.
 
