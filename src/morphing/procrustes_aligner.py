@@ -6,7 +6,7 @@ two shapes using Procrustes analysis (translation, rotation, and optional scalin
 
 import numpy as np
 from scipy.spatial import procrustes
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Union
 
 from ..utils.logger import get_logger
 
