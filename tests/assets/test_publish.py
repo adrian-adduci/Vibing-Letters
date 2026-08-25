@@ -111,6 +111,63 @@ class TestRefusing:
         assert "could not be read" in result.reasons[0]
 
 
+class TestFallingThrough:
+    """Selecting on the still and publishing the clip is not the same thing.
+
+    A still has no rest state, so the still-level check cannot see the defect
+    that matters most: a ring drawn as two parallel filaments breaks the
+    single-valued r(theta) the warp assumes, and the resulting clip never goes
+    quiet. Selection has to try candidates until a *clip* passes.
+    """
+
+    def test_the_first_passing_candidate_is_kept(self, tmp_path):
+        good = tmp_path / "good.png"
+        cv2.imwrite(str(good), contour.render_control_image(CHORD, size=512))
+        bad = tmp_path / "bad.png"
+        cv2.imwrite(str(bad), contour.render_control_image((5, 11), size=512))
+
+        result = publish.publish_best("X", CHORD, [bad, good], tmp_path)
+        assert result.ok
+        assert (tmp_path / "X.webp").is_file()
+
+    def test_a_candidate_after_the_first_success_is_not_tried(self, tmp_path):
+        """Every extra publish is a warp and a write. Stop at the first win."""
+        good = tmp_path / "good.png"
+        cv2.imwrite(str(good), contour.render_control_image(CHORD, size=512))
+        missing = tmp_path / "does-not-exist.png"
+
+        result = publish.publish_best("X", CHORD, [good, missing], tmp_path)
+        assert result.ok
+
+    def test_the_last_failure_is_reported_when_none_pass(self, tmp_path):
+        bad = tmp_path / "bad.png"
+        cv2.imwrite(str(bad), contour.render_control_image((5, 11), size=512))
+        result = publish.publish_best("X", CHORD, [bad, bad], tmp_path)
+        assert not result.ok
+        assert result.reasons
+
+    def test_an_empty_shortlist_says_so(self, tmp_path):
+        result = publish.publish_best("X", CHORD, [], tmp_path)
+        assert not result.ok
+        assert "no candidates" in result.reasons[0]
+
+    def test_the_shortlist_is_ordered_by_confidence(self, tmp_path):
+        manifest = tmp_path / "manifest.json"
+        manifest.write_text(json.dumps({"symbols": [{
+            "name": "X", "chord": [3, 8], "chosen": "b.png",
+            "candidates": [
+                {"file": "a.png", "accepted": True, "confidence": 10.0},
+                {"file": "b.png", "accepted": True, "confidence": 30.0},
+                {"file": "c.png", "accepted": False, "confidence": 99.0},
+                {"file": "d.png", "accepted": True, "confidence": 20.0},
+            ],
+        }]}))
+        (name, chord, paths), = publish.ranked_from_manifest(manifest)
+        assert name == "X" and chord == (3, 8)
+        # Best first, and the rejected candidate is absent whatever its score.
+        assert [p.name for p in paths] == ["b.png", "d.png", "a.png"]
+
+
 class TestPublishingAll:
     @pytest.fixture
     def chosen(self, tmp_path):

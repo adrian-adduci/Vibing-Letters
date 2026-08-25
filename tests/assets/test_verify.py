@@ -114,6 +114,37 @@ class TestTheRule:
         verdict = verify.judge(tuple(readings), CHORD)
         assert len(verdict.reasons) == 2
 
+    def test_a_clip_that_never_goes_quiet_is_rejected(self):
+        """The hole the first full asset set fell through.
+
+        The gate said silence was acceptable and never checked it was present,
+        but quiet frames are the delimiters. Three clips of forty-four came back
+        permanently excited -- the model had drawn the ring as two parallel
+        filaments, which breaks the single-valued r(theta) the warp assumes --
+        and the character after each one merged into the same segment and
+        vanished. `MEET ME AT 8PM!` decoded as `MEET ME AT 8M!` with every
+        individual frame perfectly legal.
+        """
+        readings = list(good_clip())
+        readings[-1] = reading(len(readings) - 1, CHORD, 30.0)
+        verdict = verify.judge(tuple(readings), CHORD)
+        assert not verdict
+        assert "never returns to rest" in verdict.reasons[0]
+
+    def test_the_rest_rule_looks_at_the_right_chord_too(self):
+        """Ending loud is a defect even when it is loud with the *correct*
+        chord. Nothing about the delimiter cares which letter is playing."""
+        readings = list(good_clip())
+        readings[-1] = reading(len(readings) - 1, CHORD, 99.0)
+        assert not verify.judge(tuple(readings), CHORD)
+
+    def test_a_single_still_is_not_asked_to_be_at_rest(self):
+        """A still is all peak. Applying the rule to one would reject every
+        candidate that was correctly excited, which is all of them."""
+        readings = (reading(0, CHORD, 40.0),)
+        assert verify.judge(readings, CHORD, peak_frame=0, require_rest=False)
+        assert not verify.judge(readings, CHORD, peak_frame=0)
+
     def test_an_empty_clip_is_rejected_outright(self):
         with pytest.raises(ValueError, match="no frames"):
             verify.judge((), CHORD)

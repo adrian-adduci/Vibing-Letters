@@ -103,6 +103,95 @@ def publish_one(
                      verdict.peak.confidence, ())
 
 
+def publish_best(
+    name: str,
+    chord: tuple[int, int],
+    still_paths: Iterable[Path],
+    out_dir: Path,
+    url: str = emit.DECODER_URL,
+) -> Published:
+    """Try candidates in order and keep the first whose *clip* passes.
+
+    A still passing the gate is not evidence its clip will. The still-level
+    check has no rest state to look at, so it cannot see the one defect that
+    matters most here: a ring the model drew as two parallel filaments breaks
+    the single-valued r(theta) the warp assumes, and the clip never returns to
+    silence. Selecting on the still and publishing the clip would pick such a
+    candidate whenever it happened to be the most confident one.
+
+    Args:
+        name: Filesystem-safe symbol name.
+        chord: The chord this symbol carries.
+        still_paths: Candidates, best first.
+        out_dir: Where the clip goes.
+        url: Decoder link to embed.
+
+    Returns:
+        Published: The first success, or the last failure if none succeeded.
+    """
+    last = None
+    for still_path in still_paths:
+        last = publish_one(name, chord, Path(still_path), out_dir, url=url)
+        if last.ok:
+            return last
+    if last is None:
+        return Published(name, chord, None, None, 0.0, ("no candidates offered",))
+    return last
+
+
+def chosen_from_manifest(
+    manifest_path: str | Path,
+    candidates_dir: str | Path | None = None,
+) -> list[tuple[str, tuple[int, int], Path]]:
+    """Read the build's manifest and return what it selected.
+
+    Symbols the build could not satisfy are skipped rather than raising, so a
+    partial build still publishes what it has; `publish_all` will report the
+    shortfall in its own manifest.
+
+    Args:
+        manifest_path: The build's manifest.json.
+        candidates_dir: Where the candidate files live; the manifest's own
+            directory by default.
+
+    Returns:
+        list: (name, chord, still path) triples ready for `publish_all`.
+    """
+    path = Path(manifest_path)
+    directory = Path(candidates_dir) if candidates_dir else path.parent
+    manifest = json.loads(path.read_text())
+    return [
+        (entry["name"], tuple(entry["chord"]), directory / entry["chosen"])
+        for entry in manifest["symbols"]
+        if entry["chosen"]
+    ]
+
+
+def ranked_from_manifest(
+    manifest_path: str | Path,
+    candidates_dir: str | Path | None = None,
+) -> list[tuple[str, tuple[int, int], list[Path]]]:
+    """Every accepted candidate per symbol, most confident first.
+
+    `chosen_from_manifest` returns only the build's single pick, which is chosen
+    on still-level evidence alone. This returns the whole shortlist so
+    `publish_best` can fall through to the next one when a clip fails.
+    """
+    path = Path(manifest_path)
+    directory = Path(candidates_dir) if candidates_dir else path.parent
+    manifest = json.loads(path.read_text())
+
+    ranked = []
+    for entry in manifest["symbols"]:
+        usable = sorted(
+            (c for c in entry["candidates"] if c["accepted"]),
+            key=lambda c: c["confidence"], reverse=True,
+        )
+        ranked.append((entry["name"], tuple(entry["chord"]),
+                       [directory / c["file"] for c in usable]))
+    return ranked
+
+
 def publish_all(
     chosen: Iterable[tuple[str, tuple[int, int], Path]],
     out_dir: str | Path,

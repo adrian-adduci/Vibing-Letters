@@ -1,0 +1,2428 @@
+{
+  "alphabet_size": 43,
+  "frames_per_char": 15,
+  "min_confidence": 5.0,
+  "complete": true,
+  "symbols": [
+    {
+      "name": "SPACE",
+      "chord": [
+        2,
+        3
+      ],
+      "chosen": "cand_02_03_s1.png",
+      "confidence": 42.0,
+      "candidates": [
+        {
+          "file": "cand_02_03_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            2,
+            3
+          ],
+          "confidence": 42.0,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_03_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            2,
+            3
+          ],
+          "confidence": 34.68,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_03_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            2,
+            3
+          ],
+          "confidence": 16.61,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_03_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            2,
+            3
+          ],
+          "confidence": 34.25,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "U0021",
+      "chord": [
+        8,
+        9
+      ],
+      "chosen": "cand_08_09_s1.png",
+      "confidence": 49.14,
+      "candidates": [
+        {
+          "file": "cand_08_09_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            8,
+            9
+          ],
+          "confidence": 49.14,
+          "reasons": []
+        },
+        {
+          "file": "cand_08_09_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            8,
+            9
+          ],
+          "confidence": 32.1,
+          "reasons": []
+        },
+        {
+          "file": "cand_08_09_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            8,
+            9
+          ],
+          "confidence": 17.74,
+          "reasons": []
+        },
+        {
+          "file": "cand_08_09_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            8,
+            9
+          ],
+          "confidence": 21.73,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "U0027",
+      "chord": [
+        6,
+        11
+      ],
+      "chosen": "cand_06_11_s3.png",
+      "confidence": 38.47,
+      "candidates": [
+        {
+          "file": "cand_06_11_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            6,
+            11
+          ],
+          "confidence": 21.11,
+          "reasons": []
+        },
+        {
+          "file": "cand_06_11_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            6,
+            11
+          ],
+          "confidence": 16.63,
+          "reasons": []
+        },
+        {
+          "file": "cand_06_11_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            6,
+            11
+          ],
+          "confidence": 38.47,
+          "reasons": []
+        },
+        {
+          "file": "cand_06_11_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            6,
+            11
+          ],
+          "confidence": 17.87,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "U002C",
+      "chord": [
+        5,
+        12
+      ],
+      "chosen": "cand_05_12_s1.png",
+      "confidence": 42.87,
+      "candidates": [
+        {
+          "file": "cand_05_12_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            5,
+            12
+          ],
+          "confidence": 42.87,
+          "reasons": []
+        },
+        {
+          "file": "cand_05_12_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            5,
+            12
+          ],
+          "confidence": 30.03,
+          "reasons": []
+        },
+        {
+          "file": "cand_05_12_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            5,
+            12
+          ],
+          "confidence": 17.77,
+          "reasons": []
+        },
+        {
+          "file": "cand_05_12_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            5,
+            12
+          ],
+          "confidence": 18.77,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "U002D",
+      "chord": [
+        7,
+        10
+      ],
+      "chosen": "cand_07_10_s1.png",
+      "confidence": 29.58,
+      "candidates": [
+        {
+          "file": "cand_07_10_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            7,
+            10
+          ],
+          "confidence": 29.58,
+          "reasons": []
+        },
+        {
+          "file": "cand_07_10_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            7,
+            10
+          ],
+          "confidence": 23.41,
+          "reasons": []
+        },
+        {
+          "file": "cand_07_10_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            7,
+            10
+          ],
+          "confidence": 17.53,
+          "reasons": []
+        },
+        {
+          "file": "cand_07_10_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            7,
+            10
+          ],
+          "confidence": 24.44,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "U002E",
+      "chord": [
+        7,
+        9
+      ],
+      "chosen": "cand_07_09_s4.png",
+      "confidence": 26.58,
+      "candidates": [
+        {
+          "file": "cand_07_09_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            7,
+            9
+          ],
+          "confidence": 24.95,
+          "reasons": []
+        },
+        {
+          "file": "cand_07_09_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            7,
+            9
+          ],
+          "confidence": 20.19,
+          "reasons": []
+        },
+        {
+          "file": "cand_07_09_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            7,
+            9
+          ],
+          "confidence": 23.48,
+          "reasons": []
+        },
+        {
+          "file": "cand_07_09_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            7,
+            9
+          ],
+          "confidence": 26.58,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "0",
+      "chord": [
+        5,
+        9
+      ],
+      "chosen": "cand_05_09_s1.png",
+      "confidence": 34.39,
+      "candidates": [
+        {
+          "file": "cand_05_09_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            5,
+            9
+          ],
+          "confidence": 34.39,
+          "reasons": []
+        },
+        {
+          "file": "cand_05_09_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            5,
+            9
+          ],
+          "confidence": 27.17,
+          "reasons": []
+        },
+        {
+          "file": "cand_05_09_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            5,
+            9
+          ],
+          "confidence": 20.85,
+          "reasons": []
+        },
+        {
+          "file": "cand_05_09_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            5,
+            9
+          ],
+          "confidence": 17.54,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "1",
+      "chord": [
+        6,
+        8
+      ],
+      "chosen": "cand_06_08_s4.png",
+      "confidence": 29.53,
+      "candidates": [
+        {
+          "file": "cand_06_08_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            6,
+            8
+          ],
+          "confidence": 18.07,
+          "reasons": []
+        },
+        {
+          "file": "cand_06_08_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            6,
+            8
+          ],
+          "confidence": 28.05,
+          "reasons": []
+        },
+        {
+          "file": "cand_06_08_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            6,
+            8
+          ],
+          "confidence": 22.64,
+          "reasons": []
+        },
+        {
+          "file": "cand_06_08_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            6,
+            8
+          ],
+          "confidence": 29.53,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "2",
+      "chord": [
+        3,
+        12
+      ],
+      "chosen": "cand_03_12_s4.png",
+      "confidence": 29.74,
+      "candidates": [
+        {
+          "file": "cand_03_12_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            3,
+            12
+          ],
+          "confidence": 16.95,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_12_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            3,
+            12
+          ],
+          "confidence": 23.3,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_12_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            3,
+            12
+          ],
+          "confidence": 10.11,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_12_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            3,
+            12
+          ],
+          "confidence": 29.74,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "3",
+      "chord": [
+        4,
+        11
+      ],
+      "chosen": "cand_04_11_s3.png",
+      "confidence": 43.23,
+      "candidates": [
+        {
+          "file": "cand_04_11_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            4,
+            11
+          ],
+          "confidence": 22.04,
+          "reasons": []
+        },
+        {
+          "file": "cand_04_11_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            4,
+            11
+          ],
+          "confidence": 22.35,
+          "reasons": []
+        },
+        {
+          "file": "cand_04_11_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            4,
+            11
+          ],
+          "confidence": 43.23,
+          "reasons": []
+        },
+        {
+          "file": "cand_04_11_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            4,
+            11
+          ],
+          "confidence": 30.05,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "4",
+      "chord": [
+        5,
+        10
+      ],
+      "chosen": "cand_05_10_s1.png",
+      "confidence": 32.54,
+      "candidates": [
+        {
+          "file": "cand_05_10_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            5,
+            10
+          ],
+          "confidence": 32.54,
+          "reasons": []
+        },
+        {
+          "file": "cand_05_10_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            5,
+            10
+          ],
+          "confidence": 17.43,
+          "reasons": []
+        },
+        {
+          "file": "cand_05_10_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            5,
+            10
+          ],
+          "confidence": 26.25,
+          "reasons": []
+        },
+        {
+          "file": "cand_05_10_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            5,
+            10
+          ],
+          "confidence": 15.53,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "5",
+      "chord": [
+        6,
+        9
+      ],
+      "chosen": "cand_06_09_s4.png",
+      "confidence": 28.8,
+      "candidates": [
+        {
+          "file": "cand_06_09_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            6,
+            9
+          ],
+          "confidence": 21.74,
+          "reasons": []
+        },
+        {
+          "file": "cand_06_09_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            6,
+            9
+          ],
+          "confidence": 15.22,
+          "reasons": []
+        },
+        {
+          "file": "cand_06_09_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            6,
+            9
+          ],
+          "confidence": 20.59,
+          "reasons": []
+        },
+        {
+          "file": "cand_06_09_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            6,
+            9
+          ],
+          "confidence": 28.8,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "6",
+      "chord": [
+        7,
+        8
+      ],
+      "chosen": "cand_07_08_s1.png",
+      "confidence": 31.93,
+      "candidates": [
+        {
+          "file": "cand_07_08_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            7,
+            8
+          ],
+          "confidence": 31.93,
+          "reasons": []
+        },
+        {
+          "file": "cand_07_08_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            7,
+            8
+          ],
+          "confidence": 19.46,
+          "reasons": []
+        },
+        {
+          "file": "cand_07_08_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            7,
+            8
+          ],
+          "confidence": 21.31,
+          "reasons": []
+        },
+        {
+          "file": "cand_07_08_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            7,
+            8
+          ],
+          "confidence": 26.35,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "7",
+      "chord": [
+        4,
+        12
+      ],
+      "chosen": "cand_04_12_s1.png",
+      "confidence": 92.15,
+      "candidates": [
+        {
+          "file": "cand_04_12_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            4,
+            12
+          ],
+          "confidence": 92.15,
+          "reasons": []
+        },
+        {
+          "file": "cand_04_12_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            4,
+            12
+          ],
+          "confidence": 16.47,
+          "reasons": []
+        },
+        {
+          "file": "cand_04_12_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            4,
+            12
+          ],
+          "confidence": 80.48,
+          "reasons": []
+        },
+        {
+          "file": "cand_04_12_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            4,
+            12
+          ],
+          "confidence": 24.21,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "8",
+      "chord": [
+        5,
+        11
+      ],
+      "chosen": "cand_05_11_s3.png",
+      "confidence": 32.91,
+      "candidates": [
+        {
+          "file": "cand_05_11_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            5,
+            11
+          ],
+          "confidence": 21.64,
+          "reasons": []
+        },
+        {
+          "file": "cand_05_11_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            5,
+            11
+          ],
+          "confidence": 26.06,
+          "reasons": []
+        },
+        {
+          "file": "cand_05_11_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            5,
+            11
+          ],
+          "confidence": 32.91,
+          "reasons": []
+        },
+        {
+          "file": "cand_05_11_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            5,
+            11
+          ],
+          "confidence": 23.28,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "9",
+      "chord": [
+        6,
+        10
+      ],
+      "chosen": "cand_06_10_s2.png",
+      "confidence": 37.63,
+      "candidates": [
+        {
+          "file": "cand_06_10_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            6,
+            10
+          ],
+          "confidence": 34.81,
+          "reasons": []
+        },
+        {
+          "file": "cand_06_10_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            6,
+            10
+          ],
+          "confidence": 37.63,
+          "reasons": []
+        },
+        {
+          "file": "cand_06_10_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            6,
+            10
+          ],
+          "confidence": 30.28,
+          "reasons": []
+        },
+        {
+          "file": "cand_06_10_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            6,
+            10
+          ],
+          "confidence": 24.68,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "U003F",
+      "chord": [
+        6,
+        12
+      ],
+      "chosen": "cand_06_12_s2.png",
+      "confidence": 77.77,
+      "candidates": [
+        {
+          "file": "cand_06_12_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            6,
+            12
+          ],
+          "confidence": 21.53,
+          "reasons": []
+        },
+        {
+          "file": "cand_06_12_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            6,
+            12
+          ],
+          "confidence": 77.77,
+          "reasons": []
+        },
+        {
+          "file": "cand_06_12_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            6,
+            12
+          ],
+          "confidence": 25.46,
+          "reasons": []
+        },
+        {
+          "file": "cand_06_12_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            6,
+            12
+          ],
+          "confidence": 28.45,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "A",
+      "chord": [
+        3,
+        4
+      ],
+      "chosen": "cand_03_04_s2.png",
+      "confidence": 32.25,
+      "candidates": [
+        {
+          "file": "cand_03_04_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            3,
+            4
+          ],
+          "confidence": 29.45,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_04_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            3,
+            4
+          ],
+          "confidence": 32.25,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_04_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            3,
+            4
+          ],
+          "confidence": 24.98,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_04_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            3,
+            4
+          ],
+          "confidence": 20.59,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "B",
+      "chord": [
+        2,
+        11
+      ],
+      "chosen": "cand_02_11_s1.png",
+      "confidence": 41.87,
+      "candidates": [
+        {
+          "file": "cand_02_11_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            2,
+            11
+          ],
+          "confidence": 41.87,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_11_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            2,
+            11
+          ],
+          "confidence": 34.26,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_11_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            2,
+            11
+          ],
+          "confidence": 35.76,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_11_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            2,
+            11
+          ],
+          "confidence": 17.96,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "C",
+      "chord": [
+        3,
+        8
+      ],
+      "chosen": "cand_03_08_s1.png",
+      "confidence": 35.99,
+      "candidates": [
+        {
+          "file": "cand_03_08_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            3,
+            8
+          ],
+          "confidence": 35.99,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_08_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            3,
+            8
+          ],
+          "confidence": 33.73,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_08_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            3,
+            8
+          ],
+          "confidence": 28.93,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_08_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            3,
+            8
+          ],
+          "confidence": 35.09,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "D",
+      "chord": [
+        3,
+        7
+      ],
+      "chosen": "cand_03_07_s2.png",
+      "confidence": 40.89,
+      "candidates": [
+        {
+          "file": "cand_03_07_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            3,
+            7
+          ],
+          "confidence": 10.4,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_07_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            3,
+            7
+          ],
+          "confidence": 40.89,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_07_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            3,
+            7
+          ],
+          "confidence": 20.48,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_07_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            3,
+            7
+          ],
+          "confidence": 26.28,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "E",
+      "chord": [
+        2,
+        4
+      ],
+      "chosen": "cand_02_04_s3.png",
+      "confidence": 48.12,
+      "candidates": [
+        {
+          "file": "cand_02_04_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            2,
+            4
+          ],
+          "confidence": 24.9,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_04_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            2,
+            4
+          ],
+          "confidence": 36.75,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_04_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            2,
+            4
+          ],
+          "confidence": 48.12,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_04_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            2,
+            4
+          ],
+          "confidence": 18.19,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "F",
+      "chord": [
+        5,
+        6
+      ],
+      "chosen": "cand_05_06_s3.png",
+      "confidence": 39.39,
+      "candidates": [
+        {
+          "file": "cand_05_06_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            5,
+            6
+          ],
+          "confidence": 23.34,
+          "reasons": []
+        },
+        {
+          "file": "cand_05_06_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            5,
+            6
+          ],
+          "confidence": 29.25,
+          "reasons": []
+        },
+        {
+          "file": "cand_05_06_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            5,
+            6
+          ],
+          "confidence": 39.39,
+          "reasons": []
+        },
+        {
+          "file": "cand_05_06_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            5,
+            6
+          ],
+          "confidence": 29.77,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "G",
+      "chord": [
+        4,
+        8
+      ],
+      "chosen": "cand_04_08_s1.png",
+      "confidence": 163.38,
+      "candidates": [
+        {
+          "file": "cand_04_08_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            4,
+            8
+          ],
+          "confidence": 163.38,
+          "reasons": []
+        },
+        {
+          "file": "cand_04_08_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            4,
+            8
+          ],
+          "confidence": 63.51,
+          "reasons": []
+        },
+        {
+          "file": "cand_04_08_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            4,
+            8
+          ],
+          "confidence": 8.29,
+          "reasons": []
+        },
+        {
+          "file": "cand_04_08_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            4,
+            8
+          ],
+          "confidence": 24.35,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "H",
+      "chord": [
+        2,
+        8
+      ],
+      "chosen": "cand_02_08_s2.png",
+      "confidence": 53.39,
+      "candidates": [
+        {
+          "file": "cand_02_08_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            2,
+            8
+          ],
+          "confidence": 20.99,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_08_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            2,
+            8
+          ],
+          "confidence": 53.39,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_08_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            2,
+            8
+          ],
+          "confidence": 29.45,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_08_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            2,
+            8
+          ],
+          "confidence": 16.04,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "I",
+      "chord": [
+        3,
+        5
+      ],
+      "chosen": "cand_03_05_s2.png",
+      "confidence": 39.99,
+      "candidates": [
+        {
+          "file": "cand_03_05_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            3,
+            5
+          ],
+          "confidence": 17.39,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_05_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            3,
+            5
+          ],
+          "confidence": 39.99,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_05_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            3,
+            5
+          ],
+          "confidence": 25.42,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_05_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            3,
+            5
+          ],
+          "confidence": 19.22,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "J",
+      "chord": [
+        3,
+        11
+      ],
+      "chosen": "cand_03_11_s2.png",
+      "confidence": 51.62,
+      "candidates": [
+        {
+          "file": "cand_03_11_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            3,
+            11
+          ],
+          "confidence": 25.04,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_11_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            3,
+            11
+          ],
+          "confidence": 51.62,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_11_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            3,
+            11
+          ],
+          "confidence": 22.88,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_11_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            3,
+            11
+          ],
+          "confidence": 16.9,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "K",
+      "chord": [
+        4,
+        9
+      ],
+      "chosen": "cand_04_09_s1.png",
+      "confidence": 49.1,
+      "candidates": [
+        {
+          "file": "cand_04_09_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            4,
+            9
+          ],
+          "confidence": 49.1,
+          "reasons": []
+        },
+        {
+          "file": "cand_04_09_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            4,
+            9
+          ],
+          "confidence": 28.48,
+          "reasons": []
+        },
+        {
+          "file": "cand_04_09_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            4,
+            9
+          ],
+          "confidence": 36.2,
+          "reasons": []
+        },
+        {
+          "file": "cand_04_09_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            4,
+            9
+          ],
+          "confidence": 17.95,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "L",
+      "chord": [
+        4,
+        6
+      ],
+      "chosen": "cand_04_06_s1.png",
+      "confidence": 43.28,
+      "candidates": [
+        {
+          "file": "cand_04_06_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            4,
+            6
+          ],
+          "confidence": 43.28,
+          "reasons": []
+        },
+        {
+          "file": "cand_04_06_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            4,
+            6
+          ],
+          "confidence": 42.54,
+          "reasons": []
+        },
+        {
+          "file": "cand_04_06_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            4,
+            6
+          ],
+          "confidence": 42.47,
+          "reasons": []
+        },
+        {
+          "file": "cand_04_06_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            4,
+            6
+          ],
+          "confidence": 24.22,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "M",
+      "chord": [
+        4,
+        7
+      ],
+      "chosen": "cand_04_07_s4.png",
+      "confidence": 24.6,
+      "candidates": [
+        {
+          "file": "cand_04_07_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            4,
+            7
+          ],
+          "confidence": 22.24,
+          "reasons": []
+        },
+        {
+          "file": "cand_04_07_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            4,
+            7
+          ],
+          "confidence": 19.97,
+          "reasons": []
+        },
+        {
+          "file": "cand_04_07_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            4,
+            7
+          ],
+          "confidence": 24.5,
+          "reasons": []
+        },
+        {
+          "file": "cand_04_07_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            4,
+            7
+          ],
+          "confidence": 24.6,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "N",
+      "chord": [
+        2,
+        7
+      ],
+      "chosen": "cand_02_07_s3.png",
+      "confidence": 41.83,
+      "candidates": [
+        {
+          "file": "cand_02_07_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            2,
+            7
+          ],
+          "confidence": 38.5,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_07_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            2,
+            7
+          ],
+          "confidence": 29.15,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_07_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            2,
+            7
+          ],
+          "confidence": 41.83,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_07_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            2,
+            7
+          ],
+          "confidence": 22.37,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "O",
+      "chord": [
+        2,
+        6
+      ],
+      "chosen": "cand_02_06_s2.png",
+      "confidence": 48.65,
+      "candidates": [
+        {
+          "file": "cand_02_06_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            2,
+            6
+          ],
+          "confidence": 23.95,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_06_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            2,
+            6
+          ],
+          "confidence": 48.65,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_06_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            2,
+            6
+          ],
+          "confidence": 27.51,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_06_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            2,
+            6
+          ],
+          "confidence": 22.21,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "P",
+      "chord": [
+        5,
+        7
+      ],
+      "chosen": "cand_05_07_s2.png",
+      "confidence": 34.14,
+      "candidates": [
+        {
+          "file": "cand_05_07_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            5,
+            7
+          ],
+          "confidence": 23.39,
+          "reasons": []
+        },
+        {
+          "file": "cand_05_07_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            5,
+            7
+          ],
+          "confidence": 34.14,
+          "reasons": []
+        },
+        {
+          "file": "cand_05_07_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            5,
+            7
+          ],
+          "confidence": 28.26,
+          "reasons": []
+        },
+        {
+          "file": "cand_05_07_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            5,
+            7
+          ],
+          "confidence": 24.53,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "Q",
+      "chord": [
+        6,
+        7
+      ],
+      "chosen": "cand_06_07_s4.png",
+      "confidence": 34.66,
+      "candidates": [
+        {
+          "file": "cand_06_07_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            6,
+            7
+          ],
+          "confidence": 34.43,
+          "reasons": []
+        },
+        {
+          "file": "cand_06_07_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            6,
+            7
+          ],
+          "confidence": 34.52,
+          "reasons": []
+        },
+        {
+          "file": "cand_06_07_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            6,
+            7
+          ],
+          "confidence": 24.83,
+          "reasons": []
+        },
+        {
+          "file": "cand_06_07_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            6,
+            7
+          ],
+          "confidence": 34.66,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "R",
+      "chord": [
+        4,
+        5
+      ],
+      "chosen": "cand_04_05_s2.png",
+      "confidence": 29.05,
+      "candidates": [
+        {
+          "file": "cand_04_05_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            4,
+            5
+          ],
+          "confidence": 16.61,
+          "reasons": []
+        },
+        {
+          "file": "cand_04_05_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            4,
+            5
+          ],
+          "confidence": 29.05,
+          "reasons": []
+        },
+        {
+          "file": "cand_04_05_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            4,
+            5
+          ],
+          "confidence": 19.71,
+          "reasons": []
+        },
+        {
+          "file": "cand_04_05_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            4,
+            5
+          ],
+          "confidence": 27.09,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "S",
+      "chord": [
+        3,
+        6
+      ],
+      "chosen": "cand_03_06_s2.png",
+      "confidence": 46.65,
+      "candidates": [
+        {
+          "file": "cand_03_06_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            3,
+            6
+          ],
+          "confidence": 30.16,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_06_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            3,
+            6
+          ],
+          "confidence": 46.65,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_06_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            3,
+            6
+          ],
+          "confidence": 24.19,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_06_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            3,
+            6
+          ],
+          "confidence": 19.0,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "T",
+      "chord": [
+        2,
+        5
+      ],
+      "chosen": "cand_02_05_s4.png",
+      "confidence": 31.13,
+      "candidates": [
+        {
+          "file": "cand_02_05_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            2,
+            5
+          ],
+          "confidence": 24.49,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_05_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            2,
+            5
+          ],
+          "confidence": 21.8,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_05_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            2,
+            5
+          ],
+          "confidence": 8.36,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_05_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            2,
+            5
+          ],
+          "confidence": 31.13,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "U",
+      "chord": [
+        2,
+        9
+      ],
+      "chosen": "cand_02_09_s4.png",
+      "confidence": 35.83,
+      "candidates": [
+        {
+          "file": "cand_02_09_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            2,
+            9
+          ],
+          "confidence": 25.59,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_09_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            2,
+            9
+          ],
+          "confidence": 33.71,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_09_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            2,
+            9
+          ],
+          "confidence": 18.58,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_09_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            2,
+            9
+          ],
+          "confidence": 35.83,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "V",
+      "chord": [
+        3,
+        10
+      ],
+      "chosen": "cand_03_10_s1.png",
+      "confidence": 26.34,
+      "candidates": [
+        {
+          "file": "cand_03_10_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            3,
+            10
+          ],
+          "confidence": 26.34,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_10_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            3,
+            10
+          ],
+          "confidence": 24.63,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_10_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            3,
+            10
+          ],
+          "confidence": 22.55,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_10_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            3,
+            10
+          ],
+          "confidence": 23.78,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "W",
+      "chord": [
+        3,
+        9
+      ],
+      "chosen": "cand_03_09_s1.png",
+      "confidence": 37.6,
+      "candidates": [
+        {
+          "file": "cand_03_09_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            3,
+            9
+          ],
+          "confidence": 37.6,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_09_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            3,
+            9
+          ],
+          "confidence": 22.57,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_09_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            3,
+            9
+          ],
+          "confidence": 20.23,
+          "reasons": []
+        },
+        {
+          "file": "cand_03_09_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            3,
+            9
+          ],
+          "confidence": 16.83,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "X",
+      "chord": [
+        5,
+        8
+      ],
+      "chosen": "cand_05_08_s1.png",
+      "confidence": 39.34,
+      "candidates": [
+        {
+          "file": "cand_05_08_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            5,
+            8
+          ],
+          "confidence": 39.34,
+          "reasons": []
+        },
+        {
+          "file": "cand_05_08_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            5,
+            8
+          ],
+          "confidence": 35.05,
+          "reasons": []
+        },
+        {
+          "file": "cand_05_08_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            5,
+            8
+          ],
+          "confidence": 19.18,
+          "reasons": []
+        },
+        {
+          "file": "cand_05_08_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            5,
+            8
+          ],
+          "confidence": 18.61,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "Y",
+      "chord": [
+        2,
+        10
+      ],
+      "chosen": "cand_02_10_s4.png",
+      "confidence": 91.06,
+      "candidates": [
+        {
+          "file": "cand_02_10_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            2,
+            10
+          ],
+          "confidence": 9.87,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_10_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            2,
+            10
+          ],
+          "confidence": 43.83,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_10_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            2,
+            10
+          ],
+          "confidence": 20.94,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_10_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            2,
+            10
+          ],
+          "confidence": 91.06,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "Z",
+      "chord": [
+        4,
+        10
+      ],
+      "chosen": "cand_04_10_s4.png",
+      "confidence": 31.6,
+      "candidates": [
+        {
+          "file": "cand_04_10_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            4,
+            10
+          ],
+          "confidence": 6.68,
+          "reasons": []
+        },
+        {
+          "file": "cand_04_10_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            4,
+            10
+          ],
+          "confidence": 21.83,
+          "reasons": []
+        },
+        {
+          "file": "cand_04_10_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            4,
+            10
+          ],
+          "confidence": 29.82,
+          "reasons": []
+        },
+        {
+          "file": "cand_04_10_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            4,
+            10
+          ],
+          "confidence": 31.6,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "name": "SENTINEL",
+      "chord": [
+        2,
+        12
+      ],
+      "chosen": "cand_02_12_s2.png",
+      "confidence": 30.67,
+      "candidates": [
+        {
+          "file": "cand_02_12_s1.png",
+          "seed": 1,
+          "accepted": true,
+          "read_as": [
+            2,
+            12
+          ],
+          "confidence": 17.28,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_12_s2.png",
+          "seed": 2,
+          "accepted": true,
+          "read_as": [
+            2,
+            12
+          ],
+          "confidence": 30.67,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_12_s3.png",
+          "seed": 3,
+          "accepted": true,
+          "read_as": [
+            2,
+            12
+          ],
+          "confidence": 8.76,
+          "reasons": []
+        },
+        {
+          "file": "cand_02_12_s4.png",
+          "seed": 4,
+          "accepted": true,
+          "read_as": [
+            2,
+            12
+          ],
+          "confidence": 30.47,
+          "reasons": []
+        }
+      ]
+    }
+  ]
+}

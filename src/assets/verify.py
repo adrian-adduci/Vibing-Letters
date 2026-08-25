@@ -5,13 +5,24 @@ envelope passes through zero are, by construction, near-perfect circles carrying
 no signal at all, and demanding a chord from them would reject correct assets.
 The rule that is actually right is asymmetric:
 
-* the **loudest frame must decode to the intended chord**, confidently, and
-* **no frame may decode to a different one**.
+* the **loudest frame must decode to the intended chord**, confidently,
+* **no frame may decode to a different one**, and
+* **the clip must return to silence**.
 
 Silence is acceptable. A wrong answer is not. Runtime concatenates these frames
 untouched and never regenerates anything, so a defect that gets past this gate
 gets shipped, and the only place it will surface is in someone's decoded message
 reading a letter that was never written.
+
+The third rule was added after the first full asset set was built. The gate said
+silence was *acceptable* and never checked that it was *present*, which is a hole
+the size of the format: quiet frames are the delimiters. Three clips of
+forty-four came back permanently excited -- the model had drawn the ring as two
+parallel filaments, which breaks the single-valued r(theta) the warp assumes, so
+flattening the measured profile did not flatten the picture. Their tails never
+dropped below the quiet threshold, the character after them merged into the same
+segment, and `MEET ME AT 8PM!` decoded as `MEET ME AT 8M!` -- a letter lost, with
+every individual frame perfectly legal.
 """
 
 from typing import NamedTuple
@@ -81,6 +92,7 @@ def judge(
     readings: tuple[FrameReading, ...],
     chord: tuple[int, int],
     peak_frame: int = PEAK_FRAME,
+    require_rest: bool = True,
 ) -> Verdict:
     """Apply the acceptance rule to already-decoded frames.
 
@@ -92,10 +104,12 @@ def judge(
         readings: One reading per frame, from `read_frames`.
         chord: The chord the clip is supposed to carry.
         peak_frame: Index of the loudest frame.
+        require_rest: Require the clip to end silent. Off for a single still,
+            which is all peak and has no rest state to check.
 
     Returns:
-        Verdict: Accepted only if the peak frame is confidently `chord` and no
-        frame confidently claims anything else.
+        Verdict: Accepted only if the peak frame is confidently `chord`, no
+        frame confidently claims anything else, and the clip ends at rest.
 
     Raises:
         ValueError: If `readings` is empty or does not reach `peak_frame`.
@@ -139,6 +153,16 @@ def judge(
                 f"frame {reading.index} decodes to {reading.chord} at "
                 f"confidence {reading.confidence:.2f}"
             )
+
+    # A clip that never goes quiet has no delimiter, and runtime concatenates
+    # clips without inserting one. The character that follows merges into the
+    # same segment and is lost -- not misread, lost -- while every individual
+    # frame remains perfectly legal.
+    if require_rest and not readings[-1].is_silent:
+        reasons.append(
+            f"clip never returns to rest: final frame {readings[-1].index} "
+            f"still reads {readings[-1].chord}"
+        )
 
     return Verdict(
         accepted=not reasons,
@@ -187,5 +211,9 @@ def accept_still(
 
     Returns:
         Verdict: Over a single frame, which is therefore also the peak frame.
+        The rest-state rule is not applied: a still is all peak and has no rest
+        state to check. That is exactly why a still passing here is not evidence
+        its clip will -- only `accept` can tell you that.
     """
-    return judge(read_frames(still[None, ...], n_bins), chord, peak_frame=0)
+    return judge(read_frames(still[None, ...], n_bins), chord, peak_frame=0,
+                 require_rest=False)
