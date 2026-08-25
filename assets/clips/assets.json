@@ -1,0 +1,536 @@
+{
+  "decoder_url": "https://adrian-adduci.github.io/Vibing-Letters/",
+  "frames_per_char": 15,
+  "min_confidence": 5.0,
+  "complete": true,
+  "symbols": [
+    {
+      "name": "SPACE",
+      "chord": [
+        2,
+        3
+      ],
+      "clip": "SPACE.webp",
+      "sha256": "ebcaea581bce80351229ae8092b8616dda8e3bd1cbb3566727ede9d1d88f4169",
+      "confidence": 41.86,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "U0021",
+      "chord": [
+        8,
+        9
+      ],
+      "clip": "U0021.webp",
+      "sha256": "e46ee52694ee702c65d7562543040f7255a49d3504ee27708c60d31177a90fa6",
+      "confidence": 49.38,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "U0027",
+      "chord": [
+        6,
+        11
+      ],
+      "clip": "U0027.webp",
+      "sha256": "b91e261dc380e816152e1f0cd16763e0eb570625f2c6f4f927474b0e6fd65a6f",
+      "confidence": 35.82,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "U002C",
+      "chord": [
+        5,
+        12
+      ],
+      "clip": "U002C.webp",
+      "sha256": "99b0788754155798f6265f76950c2b6128e7945c26cef2b565d399bdb6b62c73",
+      "confidence": 44.19,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "U002D",
+      "chord": [
+        7,
+        10
+      ],
+      "clip": "U002D.webp",
+      "sha256": "02ea78cad877d633ac4cc3c7df0141abd863a6ba1c0de04049001e8754c79a3b",
+      "confidence": 29.01,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "U002E",
+      "chord": [
+        7,
+        9
+      ],
+      "clip": "U002E.webp",
+      "sha256": "356f0609eda91bfc6e72334fb2c7c381aa514c89498bca303f2df3c85f51a7ae",
+      "confidence": 25.83,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "0",
+      "chord": [
+        5,
+        9
+      ],
+      "clip": "0.webp",
+      "sha256": "8bae74ce78f9b876c25b1301ed1867653e16175877840e8590126caabeaba9f6",
+      "confidence": 35.21,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "1",
+      "chord": [
+        6,
+        8
+      ],
+      "clip": "1.webp",
+      "sha256": "c30c87b1b377e817ccf46c5d235105039a19128e7819bdee9342548a3b1f03f7",
+      "confidence": 30.9,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "2",
+      "chord": [
+        3,
+        12
+      ],
+      "clip": "2.webp",
+      "sha256": "3b3f0851236807fe5db58d61d027094bbe8a435aae6a0a1279528118be9bede0",
+      "confidence": 30.19,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "3",
+      "chord": [
+        4,
+        11
+      ],
+      "clip": "3.webp",
+      "sha256": "37b1d908400373c92a94b5d762dfb753faad2e2bb57d628844e78196fead6a2d",
+      "confidence": 21.18,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "4",
+      "chord": [
+        5,
+        10
+      ],
+      "clip": "4.webp",
+      "sha256": "8e915cba2ee2a914c85e2e6a3b157eb6368c9ab683380f738647e29353b7299d",
+      "confidence": 33.04,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "5",
+      "chord": [
+        6,
+        9
+      ],
+      "clip": "5.webp",
+      "sha256": "eb2054400fb9ac5a57d968ff5adb70ec9b5635a548fe3d5610060c400ca30dbc",
+      "confidence": 28.87,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "6",
+      "chord": [
+        7,
+        8
+      ],
+      "clip": "6.webp",
+      "sha256": "b5ac5390233b7b51228804eb666d7f2f9ab823d48581863b6b8cbef45cf2bc81",
+      "confidence": 17.81,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "7",
+      "chord": [
+        4,
+        12
+      ],
+      "clip": "7.webp",
+      "sha256": "b6752faec7c511a844f476340851a672fb5b5493d42ef57ceddabeea597686be",
+      "confidence": 99.11,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "8",
+      "chord": [
+        5,
+        11
+      ],
+      "clip": "8.webp",
+      "sha256": "7e47b6c14df8ebc1d238cefb333275ac0be9772f0aa153a3e2728b70aa023f85",
+      "confidence": 25.86,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "9",
+      "chord": [
+        6,
+        10
+      ],
+      "clip": "9.webp",
+      "sha256": "12304c6842c2a603662165ca4cf32b8dbbbe57bd440583ba2963d29f9198bc35",
+      "confidence": 38.08,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "U003F",
+      "chord": [
+        6,
+        12
+      ],
+      "clip": "U003F.webp",
+      "sha256": "801cda8561769e659ab2c9b0bef56982adc3bb41c785e9671cdd87a647c23b08",
+      "confidence": 70.06,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "A",
+      "chord": [
+        3,
+        4
+      ],
+      "clip": "A.webp",
+      "sha256": "9d904cd2f5547e28741f713b020c4593c8c927677b6cf394a23882a8c88a2c24",
+      "confidence": 34.51,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "B",
+      "chord": [
+        2,
+        11
+      ],
+      "clip": "B.webp",
+      "sha256": "b81dc9fe917c4f85e4f8ab8264d0ca098bfe0c3dba79cba9be4f4b7d9e8fb566",
+      "confidence": 22.94,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "C",
+      "chord": [
+        3,
+        8
+      ],
+      "clip": "C.webp",
+      "sha256": "7694de8b6093d2b1a4aa8ba7ef40dd846bfd8d90f994e8561792d38760a93826",
+      "confidence": 34.84,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "D",
+      "chord": [
+        3,
+        7
+      ],
+      "clip": "D.webp",
+      "sha256": "766ccb1d53d279d543dbeeef777a9fcf535e25f42057ffacf3e5ddf7d6d5b3ac",
+      "confidence": 41.11,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "E",
+      "chord": [
+        2,
+        4
+      ],
+      "clip": "E.webp",
+      "sha256": "3013764aae4f9d5674e47b6883736a1e1f661064749da94e5ddf3baef1e2dc4f",
+      "confidence": 46.63,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "F",
+      "chord": [
+        5,
+        6
+      ],
+      "clip": "F.webp",
+      "sha256": "00f0396f2226c944ad2ca39287439a22d853234411abdb598dda7384f35581c5",
+      "confidence": 40.54,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "G",
+      "chord": [
+        4,
+        8
+      ],
+      "clip": "G.webp",
+      "sha256": "f2e032adcd2a4c3f929f8fb6700431faafc6d9645088c5fd9fbce8588f4451ab",
+      "confidence": 67.77,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "H",
+      "chord": [
+        2,
+        8
+      ],
+      "clip": "H.webp",
+      "sha256": "76dfd702a8bcb3bac70f3cd1a46fe9cf9e6b2b047e73e89fbc2f14888c7a8658",
+      "confidence": 12.14,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "I",
+      "chord": [
+        3,
+        5
+      ],
+      "clip": "I.webp",
+      "sha256": "088a53dbec7130113458829a2a5259256db8fea2327391bf17df570e760b8f38",
+      "confidence": 40.04,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "J",
+      "chord": [
+        3,
+        11
+      ],
+      "clip": "J.webp",
+      "sha256": "a732bc6bc7770f8357d1cd76eaf4053144f894255e970958b1582a40c008ca50",
+      "confidence": 51.94,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "K",
+      "chord": [
+        4,
+        9
+      ],
+      "clip": "K.webp",
+      "sha256": "ec6b23ace912d85b04a3e2385cf3ffeb3d7cb58dd9198b7c938181a4a6b27a42",
+      "confidence": 47.8,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "L",
+      "chord": [
+        4,
+        6
+      ],
+      "clip": "L.webp",
+      "sha256": "881007a3c7fdaada381a38b14a6d075f169598ebb012f1a1b46a6dd32bfcde65",
+      "confidence": 42.29,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "M",
+      "chord": [
+        4,
+        7
+      ],
+      "clip": "M.webp",
+      "sha256": "96cc9ae4ca3be25ed3fa86916f7184f4b352a61e50266bb00c90d03f22113f78",
+      "confidence": 24.73,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "N",
+      "chord": [
+        2,
+        7
+      ],
+      "clip": "N.webp",
+      "sha256": "88f2733d90f3d1a996775893c7de39f2743911847a72da76e2d8c34f18f5c460",
+      "confidence": 32.25,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "O",
+      "chord": [
+        2,
+        6
+      ],
+      "clip": "O.webp",
+      "sha256": "658d7082532415807baba53b2bc5bf6f76c0ed59eef58846fe7541b9834d1f5f",
+      "confidence": 46.83,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "P",
+      "chord": [
+        5,
+        7
+      ],
+      "clip": "P.webp",
+      "sha256": "72b2c3806cd69cf9b3d38193f33a7d4a77f67fcc46f9de67375403fc523556f7",
+      "confidence": 34.99,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "Q",
+      "chord": [
+        6,
+        7
+      ],
+      "clip": "Q.webp",
+      "sha256": "184a5db3e8da5d39bd0318577a7d54ecb3b5180fe4cccfe59b6f504f95aed10e",
+      "confidence": 35.35,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "R",
+      "chord": [
+        4,
+        5
+      ],
+      "clip": "R.webp",
+      "sha256": "67d0d3d2ded2cd584a3f6053590f98b04acce4aff18913b2b6affc38145adb3e",
+      "confidence": 28.35,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "S",
+      "chord": [
+        3,
+        6
+      ],
+      "clip": "S.webp",
+      "sha256": "4a8018800e4c37a45b43a61f5c14a8108cde718253ba7a82c42ec57e6c8af5c1",
+      "confidence": 48.44,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "T",
+      "chord": [
+        2,
+        5
+      ],
+      "clip": "T.webp",
+      "sha256": "f7617968ad0880a1e27193f9be7385ac490659738039c29a8becbb8f715dcdcb",
+      "confidence": 30.75,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "U",
+      "chord": [
+        2,
+        9
+      ],
+      "clip": "U.webp",
+      "sha256": "7593c1611af1dfd833e71b587027135d47906b50ffb7b4de99b0ea7d4723089c",
+      "confidence": 36.91,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "V",
+      "chord": [
+        3,
+        10
+      ],
+      "clip": "V.webp",
+      "sha256": "a0c8c88c04ecc34b2d9ff99ae0eb45786f9619b235876660ede23e942da63732",
+      "confidence": 25.35,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "W",
+      "chord": [
+        3,
+        9
+      ],
+      "clip": "W.webp",
+      "sha256": "8b9b1c341e83fb8698c8dc481ef0f4cffe9a8f5f859413d01ada2a6d7c33def0",
+      "confidence": 38.3,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "X",
+      "chord": [
+        5,
+        8
+      ],
+      "clip": "X.webp",
+      "sha256": "e89f30f42f76f78ada3cbe0fb3c87c36f423860d04668d0a7875d3be69c4971a",
+      "confidence": 39.99,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "Y",
+      "chord": [
+        2,
+        10
+      ],
+      "clip": "Y.webp",
+      "sha256": "0e3a4ca086507ebd47e4c4360edd9594a32a32503e14062b6d76be885901b795",
+      "confidence": 90.15,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "Z",
+      "chord": [
+        4,
+        10
+      ],
+      "clip": "Z.webp",
+      "sha256": "31841d5663c08e42ba3c9931c4f598ab78bd1e7da0db384082e16d62c0f72c22",
+      "confidence": 31.09,
+      "verified": true,
+      "reasons": []
+    },
+    {
+      "name": "SENTINEL",
+      "chord": [
+        2,
+        12
+      ],
+      "clip": "SENTINEL.webp",
+      "sha256": "9469c04d4c28537fd6d37284fcdf083e2cab91e55ce190843be5075ad0f94d2b",
+      "confidence": 32.72,
+      "verified": true,
+      "reasons": []
+    }
+  ]
+}

@@ -69,3 +69,7 @@ temp/
 
 # Git worktrees
 .worktrees/
+
+# Generated candidates: ~180 MB of raw model output. Only the selected
+# assets and the manifest belong in the repository.
+assets/candidates/
